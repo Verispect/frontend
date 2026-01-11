@@ -153,8 +153,8 @@ export default function Reports() {
                         onClick={() => handleOpenModal()}
                         disabled={!selectedInspectionId}
                         className={`flex items-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${!selectedInspectionId
-                                ? 'bg-gray-700 cursor-not-allowed text-gray-400'
-                                : 'bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-indigo-600'
+                            ? 'bg-gray-700 cursor-not-allowed text-gray-400'
+                            : 'bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-indigo-600'
                             }`}
                     >
                         New Report
@@ -232,8 +232,8 @@ export default function Reports() {
                                 <tr key={report.id}>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                                         <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${report.status === 'FINAL'
-                                                ? 'bg-green-400/10 text-green-400 ring-green-400/30'
-                                                : 'bg-yellow-400/10 text-yellow-400 ring-yellow-400/30'
+                                            ? 'bg-green-400/10 text-green-400 ring-green-400/30'
+                                            : 'bg-yellow-400/10 text-yellow-400 ring-yellow-400/30'
                                             }`}>
                                             {report.status}
                                         </span>

@@ -1,5 +1,8 @@
 import type { Route } from "./+types/login";
-import { Form, Link, redirect } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useState } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
 
 export function meta({ }: Route.MetaArgs) {
     return [
@@ -8,12 +11,38 @@ export function meta({ }: Route.MetaArgs) {
     ];
 }
 
-export async function action({ request }: Route.ActionArgs) {
-    // TODO: Implement actual login logic
-    return redirect("/dashboard");
-}
-
 export default function Login() {
+    const navigate = useNavigate();
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setError(null);
+        setLoading(true);
+
+        const formData = new FormData(e.currentTarget);
+        const email = formData.get("email") as string;
+        const password = formData.get("password") as string;
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            navigate("/dashboard");
+        } catch (err: any) {
+            console.error("Login error:", err);
+            setError("Invalid email or password. Please try again.");
+            if (err.code === 'auth/invalid-credential') {
+                setError("Invalid email or password.");
+            } else if (err.code === 'auth/user-not-found') {
+                setError("No user found with this email.");
+            } else if (err.code === 'auth/wrong-password') {
+                setError("Incorrect password.");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
             <div className="max-w-md w-full bg-gray-900 rounded-2xl p-8 shadow-xl border border-gray-800">
@@ -22,7 +51,12 @@ export default function Login() {
                     <p className="text-gray-400">Sign in to your account</p>
                 </div>
 
-                <Form method="post" className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {error && (
+                        <div className="bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-3 rounded-lg text-sm">
+                            {error}
+                        </div>
+                    )}
                     <div>
                         <label
                             htmlFor="email"
@@ -85,11 +119,12 @@ export default function Login() {
 
                     <button
                         type="submit"
-                        className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors cursor-pointer"
+                        disabled={loading}
+                        className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Sign in
+                        {loading ? "Signing in..." : "Sign in"}
                     </button>
-                </Form>
+                </form>
             </div>
         </div>
     );
