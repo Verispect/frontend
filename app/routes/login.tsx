@@ -1,7 +1,7 @@
 import type { Route } from "./+types/login";
 import { Link, useNavigate } from "react-router";
-import { useState } from "react";
-import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { useState, useEffect } from "react";
+import { signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 
 export function meta({ }: Route.MetaArgs) {
@@ -15,6 +15,17 @@ export default function Login() {
     const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [authChecking, setAuthChecking] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setAuthChecking(false);
+            if (user) {
+                navigate("/dashboard", { replace: true });
+            }
+        });
+        return () => unsubscribe();
+    }, [navigate]);
 
     const handleGoogleSignIn = async () => {
         setError(null);
@@ -58,6 +69,14 @@ export default function Login() {
             setLoading(false);
         }
     };
+
+    if (authChecking) {
+        return (
+            <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
+                <div className="text-gray-400">Checking authentication...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
