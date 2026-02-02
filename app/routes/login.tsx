@@ -1,8 +1,8 @@
 import type { Route } from "./+types/login";
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "../firebase";
 
 export function meta({ }: Route.MetaArgs) {
     return [
@@ -15,6 +15,22 @@ export default function Login() {
     const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+
+    const handleGoogleSignIn = async () => {
+        setError(null);
+        setLoading(true);
+
+        try {
+            await signInWithPopup(auth, googleProvider);
+            navigate("/dashboard");
+        } catch (err: any) {
+            console.error("Google sign-in error:", err);
+            // Basic, generic error; can be expanded with specific Firebase error codes.
+            setError("Unable to sign in with Google. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -125,6 +141,40 @@ export default function Login() {
                         {loading ? "Signing in..." : "Sign in"}
                     </button>
                 </form>
+
+                <div className="mt-6">
+                    <div className="relative">
+                        <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                            <div className="w-full border-t border-gray-800" />
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-2 bg-gray-900 text-gray-500">
+                                Or continue with
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="mt-6">
+                        <button
+                            type="button"
+                            onClick={handleGoogleSignIn}
+                            disabled={loading}
+                            className="w-full inline-flex justify-center items-center gap-2 py-3 px-4 border border-gray-700 rounded-lg shadow-sm text-sm font-medium text-gray-100 bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <svg
+                                className="h-5 w-5"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    fill="#EA4335"
+                                    d="M12 10.2v3.9h5.4C16.8 16.8 14.7 18 12 18c-3.3 0-6-2.7-6-6s2.7-6 6-6c1.5 0 2.8.5 3.8 1.4l2.8-2.8C17.2 3 14.8 2 12 2 6.5 2 2 6.5 2 12s4.5 10 10 10c5.2 0 9.6-3.8 9.6-10 0-.6-.1-1.2-.2-1.8H12z"
+                                />
+                            </svg>
+                            <span>Sign in with Google</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );
