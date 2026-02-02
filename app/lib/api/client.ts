@@ -1,3 +1,4 @@
+import { auth } from "../../firebase";
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
@@ -31,6 +32,13 @@ export async function client<T>(path: string, options: FetchOptions = {}): Promi
     const headers = new Headers(init.headers);
     if (!headers.has('Content-Type') && init.body && typeof init.body === 'string') {
         headers.set('Content-Type', 'application/json');
+    }
+
+    // Attach Firebase ID token if a user is logged in
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+        const idToken = await currentUser.getIdToken();
+        headers.set('Authorization', `Bearer ${idToken}`);
     }
 
     const response = await fetch(url.toString(), {
