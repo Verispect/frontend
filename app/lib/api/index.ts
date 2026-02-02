@@ -12,162 +12,162 @@ import type {
 // --- Organizations ---
 
 export const getOrganizations = () =>
-    client<Organization[]>('/organizations');
+    client<Organization[]>('/v1/organizations');
 
 export const getOrganization = (id: string) =>
-    client<Organization>(`/organizations/${id}`);
+    client<Organization>(`/v1/organizations/${id}`);
 
 export const createOrganization = (data: Omit<Organization, 'id' | 'created_at' | 'updated_at'>) =>
-    client<Organization>('/organizations', {
+    client<Organization>('/v1/organizations', {
         method: 'POST',
         body: JSON.stringify(data),
     });
 
 export const updateOrganization = (id: string, data: Partial<Organization>) =>
-    client<Organization>(`/organizations/${id}`, {
+    client<Organization>(`/v1/organizations/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
     });
 
 export const deleteOrganization = (id: string) =>
-    client<void>(`/organizations/${id}`, {
+    client<void>(`/v1/organizations/${id}`, {
         method: 'DELETE',
     });
 
 // --- Users ---
 
 export const getUsers = (orgId?: string) =>
-    client<User[]>('/users', { params: orgId ? { orgId } : undefined });
+    client<User[]>('/v1/users', { params: orgId ? { orgId } : undefined });
 
 export const getUser = (id: string) =>
-    client<User>(`/users/${id}`);
+    client<User>(`/v1/users/${id}`);
 
 export const createUser = (data: Omit<User, 'id' | 'created_at' | 'updated_at'> & { password?: string }) =>
-    client<User>('/users', {
+    client<User>('/v1/users', {
         method: 'POST',
         body: JSON.stringify(data),
     });
 
 export const updateUser = (id: string, data: Partial<User>) =>
-    client<User>(`/users/${id}`, {
+    client<User>(`/v1/users/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
     });
 
 export const deleteUser = (id: string) =>
-    client<void>(`/users/${id}`, {
+    client<void>(`/v1/users/${id}`, {
         method: 'DELETE',
     });
 
 // --- Inspections ---
 
 export const getInspections = (orgId?: string) =>
-    client<Inspection[]>('/inspections', { params: orgId ? { orgId } : undefined });
+    client<Inspection[]>('/v1/inspections', { params: orgId ? { orgId } : undefined });
 
 export const getInspection = (id: string) =>
-    client<Inspection>(`/inspections/${id}`);
+    client<Inspection>(`/v1/inspections/${id}`);
 
 export const createInspection = (data: Omit<Inspection, 'id' | 'created_at' | 'updated_at'>) =>
-    client<Inspection>('/inspections', {
+    client<Inspection>('/v1/inspections', {
         method: 'POST',
         body: JSON.stringify(data),
     });
 
 export const updateInspection = (id: string, data: Partial<Inspection>) =>
-    client<Inspection>(`/inspections/${id}`, {
+    client<Inspection>(`/v1/inspections/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
     });
 
 export const deleteInspection = (id: string) =>
-    client<void>(`/inspections/${id}`, {
+    client<void>(`/v1/inspections/${id}`, {
         method: 'DELETE',
     });
 
 // --- Evidence Items ---
 
 export const getEvidenceItems = (inspectionId: string) =>
-    client<EvidenceItem[]>('/evidence-items', { params: { inspectionId } });
+    client<EvidenceItem[]>('/v1/evidence_items', { params: { inspectionId } });
 
 export const getEvidenceItem = (id: string) =>
-    client<EvidenceItem>(`/evidence-items/${id}`);
+    client<EvidenceItem>(`/v1/evidence_items/${id}`);
 
 export const createEvidenceItem = (data: Omit<EvidenceItem, 'id' | 'created_at'>) =>
-    client<EvidenceItem>('/evidence-items', {
+    client<EvidenceItem>('/v1/evidence_items', {
         method: 'POST',
         body: JSON.stringify(data),
     });
 
 export const deleteEvidenceItem = (id: string) =>
-    client<void>(`/evidence-items/${id}`, {
+    client<void>(`/v1/evidence_items/${id}`, {
         method: 'DELETE',
     });
 
 // --- Reports ---
 
 export const getReports = (inspectionId: string) =>
-    client<Report[]>('/reports', { params: { inspectionId } });
+    client<Report[]>('/v1/reports', { params: { inspectionId } });
 
 export const getReport = (id: string) =>
-    client<Report>(`/reports/${id}`);
+    client<Report>(`/v1/reports/${id}`);
 
 export const createReport = (data: Omit<Report, 'id' | 'created_at'>) =>
-    client<Report>('/reports', {
+    client<Report>('/v1/reports', {
         method: 'POST',
         body: JSON.stringify(data),
     });
 
 export const updateReport = (id: string, data: Partial<Report>) =>
-    client<Report>(`/reports/${id}`, {
+    client<Report>(`/v1/reports/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
     });
 
 export const deleteReport = (id: string) =>
-    client<void>(`/reports/${id}`, {
+    client<void>(`/v1/reports/${id}`, {
         method: 'DELETE',
     });
 
 // --- Tasks ---
 
 export const getTasks = (orgId: string) =>
-    client<Task[]>('/tasks', { params: { orgId } });
+    client<Task[]>('/v1/tasks', { params: { orgId } });
 
 export const getTask = (id: string) =>
-    client<Task>(`/tasks/${id}`);
+    client<Task>(`/v1/tasks/${id}`);
 
 export const createTask = (data: Omit<Task, 'id' | 'created_at' | 'updated_at'>) =>
-    client<Task>('/tasks', {
+    client<Task>('/v1/tasks', {
         method: 'POST',
         body: JSON.stringify(data),
     });
 
 export const updateTask = (id: string, data: Partial<Task>) =>
-    client<Task>(`/tasks/${id}`, {
+    client<Task>(`/v1/tasks/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
     });
 
 export const deleteTask = (id: string) =>
-    client<void>(`/tasks/${id}`, {
+    client<void>(`/v1/tasks/${id}`, {
         method: 'DELETE',
     });
 
 // --- Task Evidence ---
 
 export const getTaskEvidence = (taskId: string) =>
-    client<TaskEvidence[]>('/task-evidence', { params: { taskId } });
+    client<TaskEvidence[]>('/v1/task_evidence', { params: { taskId } });
 
 export const getTaskEvidenceItem = (id: string) =>
-    client<TaskEvidence>(`/task-evidence/${id}`);
+    client<TaskEvidence>(`/v1/task_evidence/${id}`);
 
 export const createTaskEvidence = (data: Omit<TaskEvidence, 'id' | 'created_at'>) =>
-    client<TaskEvidence>('/task-evidence', {
+    client<TaskEvidence>('/v1/task_evidence', {
         method: 'POST',
         body: JSON.stringify(data),
     });
 
 export const deleteTaskEvidence = (id: string) =>
-    client<void>(`/task-evidence/${id}`, {
+    client<void>(`/v1/task_evidence/${id}`, {
         method: 'DELETE',
     });
