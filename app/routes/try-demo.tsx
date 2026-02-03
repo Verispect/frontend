@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import type { Route } from "./+types/try-demo";
-import logoLight from "../welcome/logo-light.jpg";
+import logoLight from "../welcome/logo.jpg";
 
 const gradientBar =
   "linear-gradient(90deg, #2a69b7 0%, #3a7fc4 40%, #4ba880 100%)";

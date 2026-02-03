@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import logoLight from "./logo-light.jpg";
+import logoLight from "./logo.jpg";
 
 const gradientBar =
   "linear-gradient(90deg, #2a69b7 0%, #3a7fc4 40%, #4ba880 100%)";
@@ -61,12 +61,10 @@ export function Welcome() {
         />
         <div className="relative mx-auto max-w-3xl text-center">
           <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white md:text-5xl lg:text-6xl">
-            Inspection & evidence automation for housing teams
+            Independent verification for maintenance and contractor work on physical assets
           </h1>
           <p className="mt-6 text-lg text-gray-600 dark:text-gray-400 md:text-xl">
-            Move-in/out checks, cleaning verification, maintenance follow-ups,
-            and AI-powered reports—all in one place. For property managers,
-            inspectors, and cleaning contractors.
+            We help asset managers make defensible payment decisions without unnecessary site inspections.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
