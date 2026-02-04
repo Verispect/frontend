@@ -20,9 +20,9 @@ export default function Evidence() {
     const [formData, setFormData] = useState({
         room: "",
         description: "",
-        s3_key: "",
         ai_metadata: "{}",
     });
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     useEffect(() => {
         if (selectedInspectionId) {
@@ -56,17 +56,17 @@ export default function Evidence() {
             setFormData({
                 room: item.room || "",
                 description: item.description || "",
-                s3_key: item.s3_key || "",
                 ai_metadata: JSON.stringify(item.ai_metadata, null, 2) || "{}",
             });
+            setSelectedFile(null);
         } else {
             setEditingItem(null);
             setFormData({
                 room: "",
                 description: "",
-                s3_key: "",
                 ai_metadata: "{}",
             });
+            setSelectedFile(null);
         }
         setIsModalOpen(true);
         setError(null);
@@ -88,26 +88,25 @@ export default function Evidence() {
             }
 
             if (editingItem) {
-                // There is no updateEvidenceItem in the API client provided in the context!
-                // Checking frontend/app/lib/api/index.ts...
-                // It only has: getEvidenceItems, getEvidenceItem, createEvidenceItem, deleteEvidenceItem.
-                // It seems UPDAATE is missing for EvidenceItem in the provided file content previously read.
-                // I will skip update logic or implement it if I missed it.
-                // Re-reading step 11: Yes, createEvidenceItem, but NO updateEvidenceItem.
-                // So I will only support CREATE in this form if editing is not supported.
-                // Or I can disable the Edit button.
-                // Actually, I'll alert the user.
                 setError("Update is not supported for Evidence Items currently (API limitation).");
                 return;
-            } else {
-                await createEvidenceItem({
-                    inspection_id: selectedInspectionId,
-                    room: formData.room,
-                    description: formData.description,
-                    s3_key: formData.s3_key,
-                    ai_metadata: aiMetadataJson,
-                });
             }
+
+            if (!selectedFile) {
+                setError("Please select an image to upload.");
+                return;
+            }
+
+            const body = new FormData();
+            body.append("image", selectedFile);
+            body.append("inspection_id", selectedInspectionId);
+            if (formData.room) body.append("room", formData.room);
+            if (formData.description) body.append("description", formData.description);
+            if (formData.ai_metadata && formData.ai_metadata !== "{}") {
+                body.append("ai_metadata", formData.ai_metadata);
+            }
+
+            await createEvidenceItem(body);
 
             setIsModalOpen(false);
             loadEvidence(selectedInspectionId);
@@ -291,18 +290,22 @@ export default function Evidence() {
                                         </div>
 
                                         <div>
-                                            <label htmlFor="s3_key" className="block text-sm font-medium leading-6 text-gray-300">
-                                                S3 Key (Optional)
+                                            <label htmlFor="image" className="block text-sm font-medium leading-6 text-gray-300">
+                                                Image <span className="text-red-400">*</span>
                                             </label>
                                             <div className="mt-2">
                                                 <input
-                                                    type="text"
-                                                    name="s3_key"
-                                                    id="s3_key"
-                                                    value={formData.s3_key}
-                                                    onChange={(e) => setFormData({ ...formData, s3_key: e.target.value })}
-                                                    className="block w-full rounded-md border-0 bg-gray-800 py-1.5 text-white shadow-sm ring-1 ring-inset ring-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                                    type="file"
+                                                    name="image"
+                                                    id="image"
+                                                    accept="image/*"
+                                                    required={!editingItem}
+                                                    onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
+                                                    className="block w-full text-sm text-gray-400 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white file:hover:bg-indigo-500"
                                                 />
+                                                {selectedFile && (
+                                                    <p className="mt-1 text-xs text-gray-500">{selectedFile.name}</p>
+                                                )}
                                             </div>
                                         </div>
 

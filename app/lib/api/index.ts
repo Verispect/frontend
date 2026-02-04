@@ -99,10 +99,11 @@ export const getEvidenceItems = (inspection_id: string) =>
 export const getEvidenceItem = (id: string) =>
     client<EvidenceItem>(`/v1/evidence_items/${id}`);
 
-export const createEvidenceItem = (data: Omit<EvidenceItem, 'id' | 'created_at'>) =>
+/** Create evidence item with multipart form (image required). Use createEvidenceItemFormData. */
+export const createEvidenceItem = (formData: FormData) =>
     client<EvidenceItem>('/v1/evidence_items', {
         method: 'POST',
-        body: JSON.stringify(data),
+        body: formData,
     });
 
 export const deleteEvidenceItem = (id: string) =>
