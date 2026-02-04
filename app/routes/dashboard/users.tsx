@@ -14,6 +14,7 @@ export default function Users() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [orgFilter, setOrgFilter] = useState<string>("");
 
     // Form state
     const [formData, setFormData] = useState({
@@ -107,6 +108,12 @@ export default function Users() {
                     </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-x-4">
+                    <div className="w-56">
+                        <OrganizationSelect
+                            value={orgFilter}
+                            onChange={setOrgFilter}
+                        />
+                    </div>
                     <button
                         onClick={() => handleOpenModal()}
                         className="flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -129,11 +136,13 @@ export default function Users() {
             <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
                 {isLoading ? (
                     <div className="p-6 text-center text-gray-400">Loading...</div>
-                ) : users.length === 0 ? (
-                    <div className="p-6 text-center text-gray-400">
-                        <p>No users found. Create one to get started.</p>
-                    </div>
-                ) : (
+                ) : (() => {
+                    const filteredUsers = orgFilter ? users.filter((u) => u.org_id === orgFilter) : users;
+                    return filteredUsers.length === 0 ? (
+                        <div className="p-6 text-center text-gray-400">
+                            <p>{orgFilter ? "No users in this organization." : "No users found. Create one to get started."}</p>
+                        </div>
+                    ) : (
                     <table className="min-w-full divide-y divide-gray-800">
                         <thead className="bg-gray-800/50">
                             <tr>
@@ -152,7 +161,7 @@ export default function Users() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-800 bg-gray-900">
-                            {users.map((user) => (
+                            {filteredUsers.map((user) => (
                                 <tr key={user.id}>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                                         {user.email}
@@ -180,7 +189,8 @@ export default function Users() {
                             ))}
                         </tbody>
                     </table>
-                )}
+                    );
+                })()}
             </div>
 
             {/* Modal */}
