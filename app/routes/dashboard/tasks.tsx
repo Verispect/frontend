@@ -1,20 +1,19 @@
 import type { Route } from "./+types/tasks";
 import { useEffect, useState } from "react";
 import { InspectionSelect } from "~/components/ui/InspectionSelect";
+import { OrganizationSelect } from "~/components/ui/OrganizationSelect";
 import { UserSelect } from "~/components/ui/UserSelect";
-import { createTask, deleteTask, getOrganizations, getTasks, updateTask } from "~/lib/api";
-import type { Organization, Task, TaskStatus, TaskTypeEnum } from "~/types/api";
+import { createTask, deleteTask, getTasks, updateTask } from "~/lib/api";
+import type { Task, TaskStatus, TaskTypeEnum } from "~/types/api";
 
 export function meta({ }: Route.MetaArgs) {
     return [{ title: "Tasks - Verispect" }];
 }
 
 export default function Tasks() {
-    const [organizations, setOrganizations] = useState<Organization[]>([]);
     const [selectedOrgId, setSelectedOrgId] = useState<string>("");
     const [tasks, setTasks] = useState<Task[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [isOrgsLoading, setIsOrgsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -29,30 +28,12 @@ export default function Tasks() {
     });
 
     useEffect(() => {
-        loadOrganizations();
-    }, []);
-
-    useEffect(() => {
         if (selectedOrgId) {
             loadTasks(selectedOrgId);
         } else {
             setTasks([]);
         }
     }, [selectedOrgId]);
-
-    async function loadOrganizations() {
-        try {
-            setIsOrgsLoading(true);
-            const data = await getOrganizations();
-            setOrganizations(data || []);
-            // Auto select if only one? No, let user choose.
-        } catch (err) {
-            console.error("Failed to load organizations:", err);
-            setError("Failed to load organizations");
-        } finally {
-            setIsOrgsLoading(false);
-        }
-    }
 
     async function loadTasks(orgId: string) {
         try {
@@ -193,24 +174,12 @@ export default function Tasks() {
                 <label htmlFor="org-select" className="block text-sm font-medium leading-6 text-gray-300">
                     Select Organization
                 </label>
-                <div className="mt-2">
-                    {isOrgsLoading ? (
-                        <p className="text-sm text-gray-400">Loading organizations...</p>
-                    ) : (
-                        <select
-                            id="org-select"
-                            className="block w-full max-w-md rounded-md border-0 bg-gray-900 py-1.5 text-white shadow-sm ring-1 ring-inset ring-gray-700 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            value={selectedOrgId}
-                            onChange={(e) => setSelectedOrgId(e.target.value)}
-                        >
-                            <option value="">-- Select an Organization --</option>
-                            {organizations.map((org) => (
-                                <option key={org.id} value={org.id}>
-                                    {org.name}
-                                </option>
-                            ))}
-                        </select>
-                    )}
+                <div className="mt-2 max-w-md">
+                    <OrganizationSelect
+                        id="org-select"
+                        value={selectedOrgId}
+                        onChange={setSelectedOrgId}
+                    />
                 </div>
             </div>
 

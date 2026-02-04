@@ -144,10 +144,18 @@ export default function Reports() {
                 </div>
             </div>
 
-            <InspectionSelect
-                value={selectedInspectionId}
-                onChange={setSelectedInspectionId}
-            />
+
+            <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                <label htmlFor="org-select" className="block text-sm font-medium leading-6 text-gray-300">
+                    Select Inspection
+                </label>
+                <div className="mt-2 max-w-md">
+                    <InspectionSelect
+                        value={selectedInspectionId}
+                        onChange={setSelectedInspectionId}
+                    />
+                </div>
+            </div>
 
             {error && (
                 <div className="rounded-md bg-red-900/50 p-4">

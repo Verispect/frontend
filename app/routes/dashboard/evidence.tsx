@@ -145,8 +145,8 @@ export default function Evidence() {
                         onClick={() => handleOpenModal()}
                         disabled={!selectedInspectionId}
                         className={`flex items-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${!selectedInspectionId
-                                ? 'bg-gray-700 cursor-not-allowed text-gray-400'
-                                : 'bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-indigo-600'
+                            ? 'bg-gray-700 cursor-not-allowed text-gray-400'
+                            : 'bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-indigo-600'
                             }`}
                     >
                         Add Evidence
@@ -154,10 +154,17 @@ export default function Evidence() {
                 </div>
             </div>
 
-            <InspectionSelect
-                value={selectedInspectionId}
-                onChange={setSelectedInspectionId}
-            />
+            <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                <label htmlFor="org-select" className="block text-sm font-medium leading-6 text-gray-300">
+                    Select Inspection
+                </label>
+                <div className="mt-2 max-w-md">
+                    <InspectionSelect
+                        value={selectedInspectionId}
+                        onChange={setSelectedInspectionId}
+                    />
+                </div>
+            </div>
 
             {error && (
                 <div className="rounded-md bg-red-900/50 p-4">

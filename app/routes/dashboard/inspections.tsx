@@ -15,6 +15,7 @@ export default function Inspections() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingInspection, setEditingInspection] = useState<Inspection | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [orgFilter, setOrgFilter] = useState<string>("");
 
     // Form state
     const [formData, setFormData] = useState({
@@ -142,6 +143,12 @@ export default function Inspections() {
                     </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-x-4">
+                    <div className="w-56">
+                        <OrganizationSelect
+                            value={orgFilter}
+                            onChange={setOrgFilter}
+                        />
+                    </div>
                     <button
                         onClick={() => handleOpenModal()}
                         className="flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -164,11 +171,13 @@ export default function Inspections() {
             <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
                 {isLoading ? (
                     <div className="p-6 text-center text-gray-400">Loading...</div>
-                ) : inspections.length === 0 ? (
-                    <div className="p-6 text-center text-gray-400">
-                        <p>No inspections found. Create one to get started.</p>
-                    </div>
-                ) : (
+                ) : (() => {
+                    const filteredInspections = orgFilter ? inspections.filter((i) => i.org_id === orgFilter) : inspections;
+                    return filteredInspections.length === 0 ? (
+                        <div className="p-6 text-center text-gray-400">
+                            <p>{orgFilter ? "No inspections in this organization." : "No inspections found. Create one to get started."}</p>
+                        </div>
+                    ) : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-800">
                             <thead className="bg-gray-800/50">
@@ -191,7 +200,7 @@ export default function Inspections() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-800 bg-gray-900">
-                                {inspections.map((inspection) => (
+                                {filteredInspections.map((inspection) => (
                                     <tr key={inspection.id}>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                                             {inspection.type}
@@ -226,7 +235,8 @@ export default function Inspections() {
                             </tbody>
                         </table>
                     </div>
-                )}
+                    );
+                })()}
             </div>
 
             {/* Modal */}
