@@ -1,10 +1,31 @@
+import { useState } from "react";
 import { Link } from "react-router";
+import { joinWaitingList } from "~/lib/api";
 import logoLight from "./logo.jpg";
 
 const gradientBar =
   "linear-gradient(90deg, #2a69b7 0%, #3a7fc4 40%, #4ba880 100%)";
 
 export function Welcome() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  async function handleWaitlistSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setStatus("loading");
+    setErrorMessage("");
+    try {
+      await joinWaitingList(email.trim());
+      setStatus("success");
+      setEmail("");
+    } catch {
+      setStatus("error");
+      setErrorMessage("Something went wrong. Please try again.");
+    }
+  }
+
   return (
     <main className="min-h-screen bg-[#f5f5f6] dark:bg-gray-950">
       {/* Top bar with logo */}
@@ -148,23 +169,37 @@ export function Welcome() {
           </p>
           <form
             className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center"
-            onSubmit={(e) => e.preventDefault()}
+            onSubmit={handleWaitlistSubmit}
           >
             <input
               type="email"
               placeholder="you@company.com"
-              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#2a69b7] dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder-gray-400 dark:focus:ring-[#4ba880] sm:max-w-sm"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={status === "loading"}
+              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#2a69b7] dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder-gray-400 dark:focus:ring-[#4ba880] sm:max-w-sm disabled:opacity-70"
               required
               aria-label="Email address"
             />
             <button
               type="submit"
-              className="rounded-xl px-6 py-3 font-semibold text-white transition-opacity hover:opacity-95 sm:flex-shrink-0"
+              disabled={status === "loading"}
+              className="rounded-xl px-6 py-3 font-semibold text-white transition-opacity hover:opacity-95 disabled:opacity-70 sm:flex-shrink-0"
               style={{ background: gradientBar }}
             >
-              Join waitlist
+              {status === "loading" ? "Joining…" : "Join waitlist"}
             </button>
           </form>
+          {status === "success" && (
+            <p className="mt-3 text-sm font-medium text-green-600 dark:text-green-400">
+              You’re on the list. We’ll be in touch.
+            </p>
+          )}
+          {status === "error" && (
+            <p className="mt-3 text-sm font-medium text-red-600 dark:text-red-400" role="alert">
+              {errorMessage}
+            </p>
+          )}
         </div>
       </section>
 

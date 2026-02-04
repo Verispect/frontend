@@ -178,3 +178,11 @@ export const deleteTaskEvidence = (id: string) =>
     client<void>(`/v1/task_evidence/${id}`, {
         method: 'DELETE',
     });
+
+// --- Waiting list ---
+
+export const joinWaitingList = (email: string) =>
+    client<{ id: string; email: string; created_at: string }>('/v1/waiting_list', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+    });
