@@ -36,8 +36,8 @@ export const deleteOrganization = (id: string) =>
 
 // --- Users ---
 
-export const getUsers = (orgId?: string) =>
-    client<User[]>('/v1/users', { params: orgId ? { orgId } : undefined });
+export const getUsers = (org_id?: string) =>
+    client<User[]>('/v1/users', { params: org_id ? { org_id } : undefined });
 
 export const getUser = (id: string) =>
     client<User>(`/v1/users/${id}`);
@@ -54,15 +54,15 @@ export const updateUser = (id: string, data: Partial<User>) =>
         body: JSON.stringify(data),
     });
 
-export const deleteUser = (id: string) =>
-    client<void>(`/v1/users/${id}`, {
-        method: 'DELETE',
+export const signUpUser = () =>
+    client<void>(`/v1/users/signup`, {
+        method: 'POST',
     });
 
 // --- Inspections ---
 
-export const getInspections = (orgId?: string) =>
-    client<Inspection[]>('/v1/inspections', { params: orgId ? { orgId } : undefined });
+export const getInspections = (org_id?: string) =>
+    client<Inspection[]>('/v1/inspections', { params: org_id ? { org_id } : undefined });
 
 export const getInspection = (id: string) =>
     client<Inspection>(`/v1/inspections/${id}`);
@@ -130,8 +130,8 @@ export const deleteReport = (id: string) =>
 
 // --- Tasks ---
 
-export const getTasks = (orgId: string) =>
-    client<Task[]>('/v1/tasks', { params: { orgId } });
+export const getTasks = (org_id: string) =>
+    client<Task[]>('/v1/tasks', { params: { org_id } });
 
 export const getTask = (id: string) =>
     client<Task>(`/v1/tasks/${id}`);

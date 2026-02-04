@@ -1,8 +1,9 @@
 import type { Route } from "./+types/login";
 import { Link, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
-import { signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged, getAdditionalUserInfo } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
+import { signUpUser } from "../lib/api";
 
 export function meta({ }: Route.MetaArgs) {
     return [
@@ -32,7 +33,11 @@ export default function Login() {
         setLoading(true);
 
         try {
-            await signInWithPopup(auth, googleProvider);
+            const result = await signInWithPopup(auth, googleProvider);
+            const isNewUser = getAdditionalUserInfo(result)?.isNewUser ?? false;
+            if (isNewUser) {
+                await signUpUser();
+            }
             navigate("/dashboard");
         } catch (err: any) {
             console.error("Google sign-in error:", err);

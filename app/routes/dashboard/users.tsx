@@ -1,6 +1,7 @@
 import type { Route } from "./+types/users";
 import { useEffect, useState } from "react";
-import { createUser, deleteUser, getUsers, updateUser } from "~/lib/api";
+import { OrganizationSelect } from "~/components/ui/OrganizationSelect";
+import { createUser, getUsers, updateUser } from "~/lib/api";
 import type { User, UserRole } from "~/types/api";
 
 export function meta({ }: Route.MetaArgs) {
@@ -94,18 +95,6 @@ export default function Users() {
         }
     }
 
-    async function handleDelete(id: string) {
-        if (!confirm("Are you sure you want to delete this user?")) return;
-
-        try {
-            await deleteUser(id);
-            loadUsers();
-        } catch (err) {
-            console.error("Failed to delete user:", err);
-            setError("Failed to delete user");
-        }
-    }
-
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -186,12 +175,6 @@ export default function Users() {
                                         >
                                             Edit
                                         </button>
-                                        <button
-                                            onClick={() => handleDelete(user.id)}
-                                            className="text-red-400 hover:text-red-300"
-                                        >
-                                            Delete
-                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -245,17 +228,13 @@ export default function Users() {
 
                                         <div>
                                             <label htmlFor="org_id" className="block text-sm font-medium leading-6 text-gray-300">
-                                                Organization ID
+                                                Organization
                                             </label>
                                             <div className="mt-2">
-                                                <input
-                                                    type="text"
-                                                    name="org_id"
-                                                    id="org_id"
-                                                    required
+                                                <OrganizationSelect
                                                     value={formData.org_id}
-                                                    onChange={(e) => setFormData({ ...formData, org_id: e.target.value })}
-                                                    className="block w-full rounded-md border-0 bg-gray-800 py-1.5 text-white shadow-sm ring-1 ring-inset ring-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 font-mono"
+                                                    onChange={(org_id) => setFormData({ ...formData, org_id })}
+                                                    required
                                                 />
                                             </div>
                                         </div>

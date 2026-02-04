@@ -1,5 +1,6 @@
 import type { Route } from "./+types/inspections";
 import { useEffect, useState } from "react";
+import { OrganizationSelect } from "~/components/ui/OrganizationSelect";
 import { createInspection, deleteInspection, getInspections, updateInspection } from "~/lib/api";
 import type { Inspection, InspectionStatus } from "~/types/api";
 
@@ -292,17 +293,13 @@ export default function Inspections() {
 
                                         <div>
                                             <label htmlFor="org_id" className="block text-sm font-medium leading-6 text-gray-300">
-                                                Organization ID
+                                                Organization
                                             </label>
                                             <div className="mt-2">
-                                                <input
-                                                    type="text"
-                                                    name="org_id"
-                                                    id="org_id"
-                                                    required
+                                                <OrganizationSelect
                                                     value={formData.org_id}
-                                                    onChange={(e) => setFormData({ ...formData, org_id: e.target.value })}
-                                                    className="block w-full rounded-md border-0 bg-gray-800 py-1.5 text-white shadow-sm ring-1 ring-inset ring-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 font-mono"
+                                                    onChange={(org_id) => setFormData({ ...formData, org_id })}
+                                                    required
                                                 />
                                             </div>
                                         </div>
