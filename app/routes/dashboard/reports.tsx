@@ -1,18 +1,17 @@
 import type { Route } from "./+types/reports";
 import { useEffect, useState } from "react";
-import { createReport, deleteReport, getInspections, getReports, updateReport } from "~/lib/api";
-import type { Inspection, Report, ReportStatus } from "~/types/api";
+import { InspectionSelect } from "~/components/ui/InspectionSelect";
+import { createReport, deleteReport, getReports, updateReport } from "~/lib/api";
+import type { Report, ReportStatus } from "~/types/api";
 
 export function meta({ }: Route.MetaArgs) {
     return [{ title: "Reports - Verispect" }];
 }
 
 export default function Reports() {
-    const [inspections, setInspections] = useState<Inspection[]>([]);
     const [selectedInspectionId, setSelectedInspectionId] = useState<string>("");
     const [reports, setReports] = useState<Report[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [isInspectionsLoading, setIsInspectionsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingReport, setEditingReport] = useState<Report | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -25,29 +24,12 @@ export default function Reports() {
     });
 
     useEffect(() => {
-        loadInspections();
-    }, []);
-
-    useEffect(() => {
         if (selectedInspectionId) {
             loadReports(selectedInspectionId);
         } else {
             setReports([]);
         }
     }, [selectedInspectionId]);
-
-    async function loadInspections() {
-        try {
-            setIsInspectionsLoading(true);
-            const data = await getInspections();
-            setInspections(data || []);
-        } catch (err) {
-            console.error("Failed to load inspections:", err);
-            setError("Failed to load inspections");
-        } finally {
-            setIsInspectionsLoading(false);
-        }
-    }
 
     async function loadReports(inspectionId: string) {
         try {
@@ -162,31 +144,10 @@ export default function Reports() {
                 </div>
             </div>
 
-            {/* Inspection Selector */}
-            <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-                <label htmlFor="inspection-select" className="block text-sm font-medium leading-6 text-gray-300">
-                    Select Inspection
-                </label>
-                <div className="mt-2">
-                    {isInspectionsLoading ? (
-                        <p className="text-sm text-gray-400">Loading inspections...</p>
-                    ) : (
-                        <select
-                            id="inspection-select"
-                            className="block w-full max-w-md rounded-md border-0 bg-gray-900 py-1.5 text-white shadow-sm ring-1 ring-inset ring-gray-700 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            value={selectedInspectionId}
-                            onChange={(e) => setSelectedInspectionId(e.target.value)}
-                        >
-                            <option value="">-- Select an Inspection --</option>
-                            {inspections.map((insp) => (
-                                <option key={insp.id} value={insp.id}>
-                                    {insp.type} - {new Date(insp.created_at).toLocaleDateString()} ({insp.status})
-                                </option>
-                            ))}
-                        </select>
-                    )}
-                </div>
-            </div>
+            <InspectionSelect
+                value={selectedInspectionId}
+                onChange={setSelectedInspectionId}
+            />
 
             {error && (
                 <div className="rounded-md bg-red-900/50 p-4">

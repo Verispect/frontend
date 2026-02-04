@@ -1,5 +1,6 @@
 import type { Route } from "./+types/inspections";
 import { useEffect, useState } from "react";
+import { UserSelect } from "~/components/ui/UserSelect";
 import { OrganizationSelect } from "~/components/ui/OrganizationSelect";
 import { createInspection, deleteInspection, getInspections, updateInspection } from "~/lib/api";
 import type { Inspection, InspectionStatus } from "~/types/api";
@@ -306,16 +307,16 @@ export default function Inspections() {
 
                                         <div>
                                             <label htmlFor="inspector_id" className="block text-sm font-medium leading-6 text-gray-300">
-                                                Inspector ID (Optional)
+                                                Inspector (Optional)
                                             </label>
                                             <div className="mt-2">
-                                                <input
-                                                    type="text"
-                                                    name="inspector_id"
-                                                    id="inspector_id"
+                                                <UserSelect
+                                                    orgId={formData.org_id}
+                                                    role="inspector"
                                                     value={formData.inspector_id}
-                                                    onChange={(e) => setFormData({ ...formData, inspector_id: e.target.value })}
-                                                    className="block w-full rounded-md border-0 bg-gray-800 py-1.5 text-white shadow-sm ring-1 ring-inset ring-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 font-mono"
+                                                    onChange={(inspector_id) => setFormData({ ...formData, inspector_id })}
+                                                    id="inspector_id"
+                                                    name="inspector_id"
                                                 />
                                             </div>
                                         </div>

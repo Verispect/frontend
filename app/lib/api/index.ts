@@ -2,6 +2,7 @@ import { client } from './client';
 import type {
     Organization,
     User,
+    UserRole,
     Inspection,
     EvidenceItem,
     Report,
@@ -36,8 +37,14 @@ export const deleteOrganization = (id: string) =>
 
 // --- Users ---
 
-export const getUsers = (org_id?: string) =>
-    client<User[]>('/v1/users', { params: org_id ? { org_id } : undefined });
+export const getUsers = (org_id?: string, role?: UserRole) =>
+    client<User[]>('/v1/users', {
+        params: { ...(org_id && { org_id }), ...(role && { role }) } as Record<string, string>,
+    }).then((users) =>
+        role && users
+            ? users.filter((u) => u.role === role)
+            : users
+    );
 
 export const getUser = (id: string) =>
     client<User>(`/v1/users/${id}`);
@@ -86,8 +93,8 @@ export const deleteInspection = (id: string) =>
 
 // --- Evidence Items ---
 
-export const getEvidenceItems = (inspectionId: string) =>
-    client<EvidenceItem[]>('/v1/evidence_items', { params: { inspectionId } });
+export const getEvidenceItems = (inspection_id: string) =>
+    client<EvidenceItem[]>('/v1/evidence_items', { params: { inspection_id } });
 
 export const getEvidenceItem = (id: string) =>
     client<EvidenceItem>(`/v1/evidence_items/${id}`);
@@ -105,8 +112,8 @@ export const deleteEvidenceItem = (id: string) =>
 
 // --- Reports ---
 
-export const getReports = (inspectionId: string) =>
-    client<Report[]>('/v1/reports', { params: { inspectionId } });
+export const getReports = (inspection_id: string) =>
+    client<Report[]>('/v1/reports', { params: { inspection_id } });
 
 export const getReport = (id: string) =>
     client<Report>(`/v1/reports/${id}`);
@@ -155,8 +162,8 @@ export const deleteTask = (id: string) =>
 
 // --- Task Evidence ---
 
-export const getTaskEvidence = (taskId: string) =>
-    client<TaskEvidence[]>('/v1/task_evidence', { params: { taskId } });
+export const getTaskEvidence = (task_id: string) =>
+    client<TaskEvidence[]>('/v1/task_evidence', { params: { task_id } });
 
 export const getTaskEvidenceItem = (id: string) =>
     client<TaskEvidence>(`/v1/task_evidence/${id}`);

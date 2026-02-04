@@ -1,5 +1,7 @@
 import type { Route } from "./+types/tasks";
 import { useEffect, useState } from "react";
+import { InspectionSelect } from "~/components/ui/InspectionSelect";
+import { UserSelect } from "~/components/ui/UserSelect";
 import { createTask, deleteTask, getOrganizations, getTasks, updateTask } from "~/lib/api";
 import type { Organization, Task, TaskStatus, TaskTypeEnum } from "~/types/api";
 
@@ -177,8 +179,8 @@ export default function Tasks() {
                         onClick={() => handleOpenModal()}
                         disabled={!selectedOrgId}
                         className={`flex items-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${!selectedOrgId
-                                ? 'bg-gray-700 cursor-not-allowed text-gray-400'
-                                : 'bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-indigo-600'
+                            ? 'bg-gray-700 cursor-not-allowed text-gray-400'
+                            : 'bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-indigo-600'
                             }`}
                     >
                         New Task
@@ -357,31 +359,27 @@ export default function Tasks() {
                                                 Assigned To (User ID) (Optional)
                                             </label>
                                             <div className="mt-2">
-                                                <input
-                                                    type="text"
-                                                    name="assigned_to"
-                                                    id="assigned_to"
+                                                <UserSelect
+                                                    orgId={selectedOrgId}
                                                     value={formData.assigned_to}
-                                                    onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
-                                                    className="block w-full rounded-md border-0 bg-gray-800 py-1.5 text-white shadow-sm ring-1 ring-inset ring-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 font-mono"
+                                                    onChange={(assigned_to) => setFormData({ ...formData, assigned_to })}
+                                                    id="assigned_to"
+                                                    name="assigned_to"
                                                 />
                                             </div>
                                         </div>
 
                                         <div>
-                                            <label htmlFor="inspection_id" className="block text-sm font-medium leading-6 text-gray-300">
-                                                Inspection ID (Optional)
+                                            <label htmlFor="assigned_to" className="block text-sm font-medium leading-6 text-gray-300">
+                                                Inspection (Optional)
                                             </label>
-                                            <div className="mt-2">
-                                                <input
-                                                    type="text"
-                                                    name="inspection_id"
-                                                    id="inspection_id"
-                                                    value={formData.inspection_id}
-                                                    onChange={(e) => setFormData({ ...formData, inspection_id: e.target.value })}
-                                                    className="block w-full rounded-md border-0 bg-gray-800 py-1.5 text-white shadow-sm ring-1 ring-inset ring-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 font-mono"
-                                                />
-                                            </div>
+                                            <InspectionSelect
+                                                id="inspection_id"
+                                                value={formData.inspection_id}
+                                                onChange={(value) => setFormData({ ...formData, inspection_id: value })}
+                                                orgId={selectedOrgId || undefined}
+                                                placeholder="-- Optional --"
+                                            />
                                         </div>
 
                                         <div>
