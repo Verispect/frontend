@@ -1,9 +1,10 @@
 import type { Route } from "./+types/login";
 import { Link, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
-import { signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged, getAdditionalUserInfo } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import { signUpUser } from "../lib/api";
+import { saveUserToStorage } from "../lib/user-session";
 
 export function meta({ }: Route.MetaArgs) {
     return [
@@ -33,11 +34,9 @@ export default function Login() {
         setLoading(true);
 
         try {
-            const result = await signInWithPopup(auth, googleProvider);
-            const isNewUser = getAdditionalUserInfo(result)?.isNewUser ?? false;
-            if (isNewUser) {
-                await signUpUser();
-            }
+            await signInWithPopup(auth, googleProvider);
+            const user = await signUpUser();
+            saveUserToStorage(user);
             navigate("/dashboard");
         } catch (err: any) {
             console.error("Google sign-in error:", err);
@@ -59,6 +58,8 @@ export default function Login() {
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
+            const user = await signUpUser();
+            saveUserToStorage(user);
             navigate("/dashboard");
         } catch (err: any) {
             console.error("Login error:", err);

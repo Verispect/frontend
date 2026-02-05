@@ -62,7 +62,7 @@ export const updateUser = (id: string, data: Partial<User>) =>
     });
 
 export const signUpUser = () =>
-    client<void>(`/v1/users/signup`, {
+    client<User>(`/v1/users/signup`, {
         method: 'POST',
     });
 
