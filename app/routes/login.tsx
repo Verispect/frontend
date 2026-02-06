@@ -35,9 +35,12 @@ export default function Login() {
 
         try {
             await signInWithPopup(auth, googleProvider);
-            const user = await signUpUser();
+            const { user, isNewUser } = await signUpUser();
             saveUserToStorage(user);
-            navigate("/dashboard");
+            navigate(isNewUser ? "/dashboard/choose-role" : "/dashboard", {
+                replace: true,
+                ...(isNewUser ? { state: { isNewUser: true } } : {}),
+            });
         } catch (err: any) {
             console.error("Google sign-in error:", err);
             // Basic, generic error; can be expanded with specific Firebase error codes.
@@ -58,9 +61,12 @@ export default function Login() {
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            const user = await signUpUser();
+            const { user, isNewUser } = await signUpUser();
             saveUserToStorage(user);
-            navigate("/dashboard");
+            navigate(isNewUser ? "/dashboard/choose-role" : "/dashboard", {
+                replace: true,
+                ...(isNewUser ? { state: { isNewUser: true } } : {}),
+            });
         } catch (err: any) {
             console.error("Login error:", err);
             setError("Invalid email or password. Please try again.");

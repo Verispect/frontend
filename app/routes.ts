@@ -7,6 +7,7 @@ export default [
 
     layout("routes/dashboard/layout.tsx", [
         route("dashboard", "routes/dashboard/home.tsx"),
+        route("dashboard/choose-role", "routes/dashboard/choose-role.tsx"),
         route("dashboard/organizations", "routes/dashboard/organizations.tsx"),
         route("dashboard/users", "routes/dashboard/users.tsx"),
         route("dashboard/inspections", "routes/dashboard/inspections.tsx"),

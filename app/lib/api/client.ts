@@ -57,3 +57,44 @@ export async function client<T>(path: string, options: FetchOptions = {}): Promi
 
     return response.json();
 }
+
+/** Like client() but returns { data, status } so callers can distinguish 200 vs 201 etc. */
+export async function clientWithStatus<T>(path: string, options: FetchOptions = {}): Promise<{ data: T; status: number }> {
+    const { params, ...init } = options;
+
+    const url = new URL(path, BASE_URL);
+    if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                url.searchParams.append(key, value);
+            }
+        });
+    }
+
+    const headers = new Headers(init.headers);
+    if (!headers.has('Content-Type') && init.body && typeof init.body === 'string') {
+        headers.set('Content-Type', 'application/json');
+    }
+
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+        const idToken = await currentUser.getIdToken();
+        headers.set('Authorization', `Bearer ${idToken}`);
+    }
+
+    const response = await fetch(url.toString(), {
+        ...init,
+        headers,
+    });
+
+    if (!response.ok) {
+        throw new ApiError(response.status, response.statusText);
+    }
+
+    if (response.status === 204) {
+        return { data: {} as T, status: response.status };
+    }
+
+    const data = await response.json();
+    return { data, status: response.status };
+}

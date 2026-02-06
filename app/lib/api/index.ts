@@ -1,4 +1,4 @@
-import { client } from './client';
+import { client, clientWithStatus } from './client';
 import type {
     Organization,
     User,
@@ -61,10 +61,13 @@ export const updateUser = (id: string, data: Partial<User>) =>
         body: JSON.stringify(data),
     });
 
-export const signUpUser = () =>
-    client<User>(`/v1/users/signup`, {
+export type SignUpResult = { user: User; isNewUser: boolean };
+
+export const signUpUser = (body?: { role?: UserRole }) =>
+    clientWithStatus<User>(`/v1/users/signup`, {
         method: 'POST',
-    });
+        ...(body && Object.keys(body).length > 0 ? { body: JSON.stringify(body) } : {}),
+    }).then(({ data, status }) => ({ user: data, isNewUser: status === 201 }));
 
 // --- Inspections ---
 

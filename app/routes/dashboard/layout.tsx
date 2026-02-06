@@ -1,8 +1,12 @@
-import { Outlet, useNavigate } from "react-router";
+import { Outlet, useNavigate, useLocation } from "react-router";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, type User, signOut } from "firebase/auth";
 import { auth } from "~/firebase";
 import { Sidebar } from "~/components/ui/Sidebar";
+import { getStoredUser, saveUserToStorage, clearStoredUser } from "~/lib/user-session";
+import { signUpUser } from "~/lib/api";
+import type { User as AppUser } from "~/types/api";
+import { canAccess } from "~/lib/role-permissions";
 
 function UserAvatar({ user }: { user: User }) {
     const displayName = user.displayName ?? user.email ?? "User";
@@ -39,7 +43,9 @@ function UserAvatar({ user }: { user: User }) {
 
 export default function DashboardLayout() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [user, setUser] = useState<User | null>(null);
+    const [appUser, setAppUser] = useState<AppUser | null>(null);
     const [authChecking, setAuthChecking] = useState(true);
 
     useEffect(() => {
@@ -54,12 +60,37 @@ export default function DashboardLayout() {
         return () => unsubscribe();
     }, [navigate]);
 
+    useEffect(() => {
+        if (!user) return;
+        const stored = getStoredUser();
+        if (stored) {
+            setAppUser(stored);
+            return;
+        }
+        signUpUser()
+            .then(({ user: u }) => {
+                saveUserToStorage(u);
+                setAppUser(u);
+            })
+            .catch(() => setAppUser(null));
+    }, [user]);
+
     const handleSignOut = () => {
+        clearStoredUser();
         signOut(auth);
         navigate("/login", { replace: true });
     };
 
-    if (authChecking) {
+    useEffect(() => {
+        if (!appUser) return;
+        const path = location.pathname;
+        if (path === "/dashboard/choose-role") return;
+        if (!canAccess(appUser.role, path)) {
+            navigate("/dashboard", { replace: true });
+        }
+    }, [appUser, location.pathname, navigate]);
+
+    if (authChecking || (user && !appUser)) {
         return (
             <div className="min-h-screen bg-gray-950 flex items-center justify-center">
                 <div className="text-gray-400">Loading...</div>
@@ -69,7 +100,7 @@ export default function DashboardLayout() {
 
     return (
         <div className="min-h-screen bg-gray-950">
-            <Sidebar />
+            <Sidebar role={appUser!.role} />
             <div className="lg:pl-72">
                 <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-800 bg-gray-950/95 backdrop-blur px-4 sm:gap-x-6 sm:px-6 lg:px-8">
                     <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6" />

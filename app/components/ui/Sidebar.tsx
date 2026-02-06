@@ -1,15 +1,19 @@
 import { NavLink } from "react-router";
+import type { UserRole } from "~/types/api";
+import { canAccess } from "~/lib/role-permissions";
 
-export function Sidebar() {
-    const navigation = [
-        { name: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
-        { name: "Organizations", href: "/dashboard/organizations", icon: "Building2" },
-        { name: "Users", href: "/dashboard/users", icon: "Users" },
-        { name: "Inspections", href: "/dashboard/inspections", icon: "ClipboardCheck" },
-        { name: "Evidence", href: "/dashboard/evidence", icon: "FileSearch" },
-        { name: "Reports", href: "/dashboard/reports", icon: "FileText" },
-        { name: "Tasks", href: "/dashboard/tasks", icon: "ListTodo" },
-    ];
+const navigation = [
+    { name: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
+    { name: "Organizations", href: "/dashboard/organizations", icon: "Building2" },
+    { name: "Users", href: "/dashboard/users", icon: "Users" },
+    { name: "Inspections", href: "/dashboard/inspections", icon: "ClipboardCheck" },
+    { name: "Evidence", href: "/dashboard/evidence", icon: "FileSearch" },
+    { name: "Reports", href: "/dashboard/reports", icon: "FileText" },
+    { name: "Tasks", href: "/dashboard/tasks", icon: "ListTodo" },
+];
+
+export function Sidebar({ role }: { role: UserRole }) {
+    const visibleNav = navigation.filter((item) => canAccess(role, item.href));
 
     return (
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
@@ -21,7 +25,7 @@ export function Sidebar() {
                     <ul role="list" className="flex flex-1 flex-col gap-y-7">
                         <li>
                             <ul role="list" className="-mx-2 space-y-1">
-                                {navigation.map((item) => (
+                                {visibleNav.map((item) => (
                                     <li key={item.name}>
                                         <NavLink
                                             to={item.href}
