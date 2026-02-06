@@ -2,9 +2,9 @@ import { NavLink } from "react-router";
 import type { UserRole } from "~/types/api";
 import { canAccess } from "~/lib/role-permissions";
 
+const DASHBOARD_PATH = "/dashboard";
 const navigation = [
-    { name: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
-    { name: "Organizations", href: "/dashboard/organizations", icon: "Building2" },
+    { name: "Dashboard", href: DASHBOARD_PATH, icon: "LayoutDashboard" },
     { name: "Users", href: "/dashboard/users", icon: "Users" },
     { name: "Inspections", href: "/dashboard/inspections", icon: "ClipboardCheck" },
     { name: "Evidence", href: "/dashboard/evidence", icon: "FileSearch" },
@@ -12,8 +12,15 @@ const navigation = [
     { name: "Tasks", href: "/dashboard/tasks", icon: "ListTodo" },
 ];
 
-export function Sidebar({ role }: { role: UserRole }) {
-    const visibleNav = navigation.filter((item) => canAccess(role, item.href));
+export function Sidebar({ role, basePath = DASHBOARD_PATH, isDemo = false }: { role: UserRole; basePath?: string; isDemo?: boolean }) {
+    const visibleNav = navigation.filter((item) => canAccess(role, item.href)).map((item) => ({
+        ...item,
+        href: item.href.replace(DASHBOARD_PATH, basePath),
+    }));
+
+    if (!isDemo) {
+        visibleNav.unshift({ name: "Organizations", href: "/dashboard/organizations", icon: "Building2" });
+    }
 
     return (
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
@@ -29,7 +36,7 @@ export function Sidebar({ role }: { role: UserRole }) {
                                     <li key={item.name}>
                                         <NavLink
                                             to={item.href}
-                                            end={item.href === "/dashboard"}
+                                            end={item.href === basePath}
                                             className={({ isActive }) =>
                                                 `group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 transition-colors ${isActive
                                                     ? "bg-gray-800 text-white"

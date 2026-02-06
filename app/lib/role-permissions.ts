@@ -20,8 +20,17 @@ export function allowedRoutes(role: UserRole): string[] {
   return ROUTES_BY_ROLE[role] ?? [];
 }
 
+/** Normalize path for permission check: strip trailing slash and map /demo to /dashboard */
+function normalizePathForRole(path: string): string {
+  const trimmed = path.replace(/\/$/, "") || DASHBOARD;
+  if (trimmed.startsWith("/demo")) {
+    return trimmed.replace(/^\/demo/, "/dashboard");
+  }
+  return trimmed;
+}
+
 export function canAccess(role: UserRole, path: string): boolean {
-  const normalized = path.replace(/\/$/, "") || DASHBOARD;
+  const normalized = normalizePathForRole(path);
   const allowed = ROUTES_BY_ROLE[role];
   if (!allowed) return false;
   if (normalized === CHOOSE_ROLE) return true;

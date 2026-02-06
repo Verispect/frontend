@@ -15,4 +15,13 @@ export default [
         route("dashboard/reports", "routes/dashboard/reports.tsx"),
         route("dashboard/tasks", "routes/dashboard/tasks.tsx"),
     ]),
+
+    layout("routes/demo/layout.tsx", [
+        route("demo", "routes/demo/home.tsx"),
+        route("demo/users", "routes/demo/users.tsx"),
+        route("demo/inspections", "routes/demo/inspections.tsx"),
+        route("demo/evidence", "routes/demo/evidence.tsx"),
+        route("demo/reports", "routes/demo/reports.tsx"),
+        route("demo/tasks", "routes/demo/tasks.tsx"),
+    ]),
 ] satisfies RouteConfig;

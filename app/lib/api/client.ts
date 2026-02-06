@@ -1,6 +1,8 @@
 import { auth } from "../../firebase";
+import { getDemoRole, isDemoMode } from "~/lib/demo-context";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
+const DEMO_ROLE_HEADER = "X-Demo-Role";
 
 type FetchOptions = RequestInit & {
     params?: Record<string, string>;
@@ -20,7 +22,10 @@ export class ApiError extends Error {
 export async function client<T>(path: string, options: FetchOptions = {}): Promise<T> {
     const { params, ...init } = options;
 
-    const url = new URL(path, BASE_URL);
+    const effectivePath = typeof window !== "undefined" && isDemoMode()
+        ? (path.startsWith("/v1") ? path.replace("/v1", "/demo") : path)
+        : path;
+    const url = new URL(effectivePath, BASE_URL);
     if (params) {
         Object.entries(params).forEach(([key, value]) => {
             if (value !== undefined && value !== null) {
@@ -30,15 +35,18 @@ export async function client<T>(path: string, options: FetchOptions = {}): Promi
     }
 
     const headers = new Headers(init.headers);
-    if (!headers.has('Content-Type') && init.body && typeof init.body === 'string') {
-        headers.set('Content-Type', 'application/json');
+    if (!headers.has("Content-Type") && init.body && typeof init.body === "string") {
+        headers.set("Content-Type", "application/json");
     }
 
-    // Attach Firebase ID token if a user is logged in
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-        const idToken = await currentUser.getIdToken();
-        headers.set('Authorization', `Bearer ${idToken}`);
+    if (typeof window !== "undefined" && isDemoMode()) {
+        headers.set(DEMO_ROLE_HEADER, getDemoRole());
+    } else {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+            const idToken = await currentUser.getIdToken();
+            headers.set("Authorization", `Bearer ${idToken}`);
+        }
     }
 
     const response = await fetch(url.toString(), {
@@ -62,7 +70,10 @@ export async function client<T>(path: string, options: FetchOptions = {}): Promi
 export async function clientWithStatus<T>(path: string, options: FetchOptions = {}): Promise<{ data: T; status: number }> {
     const { params, ...init } = options;
 
-    const url = new URL(path, BASE_URL);
+    const effectivePath = typeof window !== "undefined" && isDemoMode()
+        ? (path.startsWith("/v1") ? path.replace("/v1", "/demo") : path)
+        : path;
+    const url = new URL(effectivePath, BASE_URL);
     if (params) {
         Object.entries(params).forEach(([key, value]) => {
             if (value !== undefined && value !== null) {
@@ -72,14 +83,18 @@ export async function clientWithStatus<T>(path: string, options: FetchOptions = 
     }
 
     const headers = new Headers(init.headers);
-    if (!headers.has('Content-Type') && init.body && typeof init.body === 'string') {
-        headers.set('Content-Type', 'application/json');
+    if (!headers.has("Content-Type") && init.body && typeof init.body === "string") {
+        headers.set("Content-Type", "application/json");
     }
 
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-        const idToken = await currentUser.getIdToken();
-        headers.set('Authorization', `Bearer ${idToken}`);
+    if (typeof window !== "undefined" && isDemoMode()) {
+        headers.set(DEMO_ROLE_HEADER, getDemoRole());
+    } else {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+            const idToken = await currentUser.getIdToken();
+            headers.set("Authorization", `Bearer ${idToken}`);
+        }
     }
 
     const response = await fetch(url.toString(), {
