@@ -7,13 +7,14 @@ const INSPECTIONS = "/dashboard/inspections";
 const EVIDENCE = "/dashboard/evidence";
 const REPORTS = "/dashboard/reports";
 const TASKS = "/dashboard/tasks";
+const TASK_EVIDENCE = "/dashboard/task-evidence";
 const CHOOSE_ROLE = "/dashboard/choose-role";
 
 const ROUTES_BY_ROLE: Record<UserRole, string[]> = {
-  admin: [DASHBOARD, ORGANIZATIONS, USERS, INSPECTIONS, EVIDENCE, REPORTS, TASKS],
-  manager: [DASHBOARD, USERS, INSPECTIONS, EVIDENCE, REPORTS, TASKS],
-  inspector: [DASHBOARD, INSPECTIONS, EVIDENCE, REPORTS, TASKS],
-  cleaner: [DASHBOARD, EVIDENCE, TASKS],
+  admin: [DASHBOARD, ORGANIZATIONS, USERS, INSPECTIONS, EVIDENCE, REPORTS, TASKS, TASK_EVIDENCE],
+  manager: [DASHBOARD, USERS, INSPECTIONS, EVIDENCE, REPORTS, TASKS, TASK_EVIDENCE],
+  inspector: [DASHBOARD, INSPECTIONS, EVIDENCE, REPORTS, TASKS, TASK_EVIDENCE],
+  cleaner: [DASHBOARD, EVIDENCE, TASKS, TASK_EVIDENCE],
 };
 
 export function allowedRoutes(role: UserRole): string[] {

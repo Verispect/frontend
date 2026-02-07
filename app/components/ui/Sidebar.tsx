@@ -10,6 +10,7 @@ const navigation = [
     { name: "Evidence", href: "/dashboard/evidence", icon: "FileSearch" },
     { name: "Reports", href: "/dashboard/reports", icon: "FileText" },
     { name: "Tasks", href: "/dashboard/tasks", icon: "ListTodo" },
+    { name: "Task Evidence", href: "/dashboard/task-evidence", icon: "Link" },
 ];
 
 export function Sidebar({ role, basePath = DASHBOARD_PATH, isDemo = false }: { role: UserRole; basePath?: string; isDemo?: boolean }) {

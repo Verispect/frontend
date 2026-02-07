@@ -14,6 +14,7 @@ export default [
         route("dashboard/evidence", "routes/dashboard/evidence.tsx"),
         route("dashboard/reports", "routes/dashboard/reports.tsx"),
         route("dashboard/tasks", "routes/dashboard/tasks.tsx"),
+        route("dashboard/task-evidence", "routes/dashboard/task-evidence.tsx"),
     ]),
 
     layout("routes/demo/layout.tsx", [
@@ -23,5 +24,6 @@ export default [
         route("demo/evidence", "routes/demo/evidence.tsx"),
         route("demo/reports", "routes/demo/reports.tsx"),
         route("demo/tasks", "routes/demo/tasks.tsx"),
+        route("demo/task-evidence", "routes/demo/task-evidence.tsx"),
     ]),
 ] satisfies RouteConfig;

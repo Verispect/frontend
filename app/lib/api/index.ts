@@ -185,6 +185,13 @@ export const createTaskEvidence = (data: Omit<TaskEvidence, 'id' | 'created_at'>
         body: JSON.stringify(data),
     });
 
+/** Create task evidence with file upload (multipart). FormData must include: image (File), task_id, type (BEFORE|AFTER). */
+export const createTaskEvidenceFormData = (formData: FormData) =>
+    client<TaskEvidence>('/v1/task_evidence', {
+        method: 'POST',
+        body: formData,
+    });
+
 export const deleteTaskEvidence = (id: string) =>
     client<void>(`/v1/task_evidence/${id}`, {
         method: 'DELETE',
