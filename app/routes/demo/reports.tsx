@@ -1,7 +1,7 @@
 import type { Route } from "./+types/reports";
 import { useEffect, useState } from "react";
 import { InspectionSelect } from "~/components/ui/InspectionSelect";
-import { createReport, deleteReport, getReports, updateReport } from "~/lib/api";
+import { createReport, createReportFormData, deleteReport, getReports, updateReport } from "~/lib/api";
 import type { Report, ReportStatus } from "~/types/api";
 import { DEMO_ORG_ID } from "~/lib/demo-context";
 
@@ -19,9 +19,9 @@ export default function DemoReports() {
 
     const [formData, setFormData] = useState({
         status: "DRAFT" as ReportStatus,
-        s3_key: "",
         content: "{}",
     });
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     useEffect(() => {
         if (selectedInspectionId) {
@@ -54,16 +54,16 @@ export default function DemoReports() {
             setEditingReport(report);
             setFormData({
                 status: report.status,
-                s3_key: report.s3_key || "",
                 content: JSON.stringify(report.content, null, 2) || "{}",
             });
+            setSelectedFile(null);
         } else {
             setEditingReport(null);
             setFormData({
                 status: "DRAFT",
-                s3_key: "",
                 content: "{}",
             });
+            setSelectedFile(null);
         }
         setIsModalOpen(true);
         setError(null);
@@ -87,14 +87,19 @@ export default function DemoReports() {
             if (editingReport) {
                 await updateReport(editingReport.id, {
                     status: formData.status,
-                    s3_key: formData.s3_key || undefined,
                     content: contentJson,
                 });
+            } else if (selectedFile) {
+                const body = new FormData();
+                body.append("inspection_id", selectedInspectionId);
+                body.append("status", formData.status);
+                body.append("content", formData.content);
+                body.append("image", selectedFile);
+                await createReportFormData(body);
             } else {
                 await createReport({
                     inspection_id: selectedInspectionId,
                     status: formData.status,
-                    s3_key: formData.s3_key || undefined,
                     content: contentJson,
                 });
             }
@@ -183,9 +188,6 @@ export default function DemoReports() {
                                     Status
                                 </th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    S3 Key
-                                </th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                                     Created At
                                 </th>
                                 <th scope="col" className="relative px-6 py-3">
@@ -200,9 +202,6 @@ export default function DemoReports() {
                                         <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${report.status === "FINAL" ? "bg-green-400/10 text-green-400 ring-green-400/30" : "bg-yellow-400/10 text-yellow-400 ring-yellow-400/30"}`}>
                                             {report.status}
                                         </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono">
-                                        {report.s3_key ? (report.s3_key.length > 20 ? report.s3_key.substring(0, 20) + "..." : report.s3_key) : "-"}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                                         {new Date(report.created_at).toLocaleDateString()}
@@ -272,21 +271,26 @@ export default function DemoReports() {
                                             </div>
                                         </div>
 
-                                        <div>
-                                            <label htmlFor="s3_key" className="block text-sm font-medium leading-6 text-gray-300">
-                                                S3 Key (Optional)
-                                            </label>
-                                            <div className="mt-2">
-                                                <input
-                                                    type="text"
-                                                    name="s3_key"
-                                                    id="s3_key"
-                                                    value={formData.s3_key}
-                                                    onChange={(e) => setFormData({ ...formData, s3_key: e.target.value })}
-                                                    className="block w-full rounded-md border-0 bg-gray-800 py-1.5 text-white shadow-sm ring-1 ring-inset ring-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                                />
+                                        {!editingReport && (
+                                            <div>
+                                                <label htmlFor="image" className="block text-sm font-medium leading-6 text-gray-300">
+                                                    Image (Optional)
+                                                </label>
+                                                <div className="mt-2">
+                                                    <input
+                                                        type="file"
+                                                        name="image"
+                                                        id="image"
+                                                        accept="image/*"
+                                                        onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
+                                                        className="block w-full text-sm text-gray-400 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white file:hover:bg-indigo-500"
+                                                    />
+                                                    {selectedFile && (
+                                                        <p className="mt-1 text-xs text-gray-500">{selectedFile.name}</p>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
 
                                         <div>
                                             <label htmlFor="content" className="block text-sm font-medium leading-6 text-gray-300">

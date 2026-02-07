@@ -128,6 +128,13 @@ export const createReport = (data: Omit<Report, 'id' | 'created_at'>) =>
         body: JSON.stringify(data),
     });
 
+/** Create report with multipart form (optional image). */
+export const createReportFormData = (formData: FormData) =>
+    client<Report>('/v1/reports', {
+        method: 'POST',
+        body: formData,
+    });
+
 export const updateReport = (id: string, data: Partial<Report>) =>
     client<Report>(`/v1/reports/${id}`, {
         method: 'PUT',
