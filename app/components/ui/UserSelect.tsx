@@ -3,7 +3,7 @@ import { getUsers } from "~/lib/api";
 import type { User, UserRole } from "~/types/api";
 
 export interface UserSelectProps {
-    orgId: string;
+    orgId?: string;
     role?: UserRole;
     value: string;
     onChange: (value: string) => void;
@@ -31,17 +31,12 @@ export function UserSelect({
     const [loadError, setLoadError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!orgId.trim()) {
-            setUsers([]);
-            setLoadError(null);
-            return;
-        }
         let cancelled = false;
         setIsLoading(true);
         setLoadError(null);
         (async () => {
             try {
-                const data = await getUsers(orgId, role);
+                const data = await getUsers(role);
                 if (!cancelled) {
                     setUsers(data || []);
                     setLoadError(null);
@@ -59,22 +54,7 @@ export function UserSelect({
         return () => {
             cancelled = true;
         };
-    }, [orgId, role]);
-
-    if (!orgId.trim()) {
-        return (
-            <select
-                id={id}
-                name={name}
-                required={required}
-                disabled
-                className={className}
-                value=""
-            >
-                <option value="">Select organization first</option>
-            </select>
-        );
-    }
+    }, [role]);
 
     if (isLoading) {
         return (

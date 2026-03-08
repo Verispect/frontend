@@ -4,14 +4,12 @@ import { InspectionSelect } from "~/components/ui/InspectionSelect";
 import { UserSelect } from "~/components/ui/UserSelect";
 import { createTask, deleteTask, getTasks, updateTask } from "~/lib/api";
 import type { Task, TaskStatus, TaskTypeEnum } from "~/types/api";
-import { DEMO_ORG_ID } from "~/lib/demo-context";
 
 export function meta({}: Route.MetaArgs) {
     return [{ title: "Demo - Tasks - Verispect" }];
 }
 
 export default function DemoTasks() {
-    const [selectedOrgId, setSelectedOrgId] = useState<string>(DEMO_ORG_ID);
     const [tasks, setTasks] = useState<Task[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,17 +25,13 @@ export default function DemoTasks() {
     });
 
     useEffect(() => {
-        if (selectedOrgId) {
-            loadTasks(selectedOrgId);
-        } else {
-            setTasks([]);
-        }
-    }, [selectedOrgId]);
+        loadTasks();
+    }, []);
 
-    async function loadTasks(orgId: string) {
+    async function loadTasks() {
         try {
             setIsLoading(true);
-            const data = await getTasks(orgId);
+            const data = await getTasks();
             setTasks(data || []);
         } catch (err) {
             console.error("Failed to load tasks:", err);
@@ -48,11 +42,6 @@ export default function DemoTasks() {
     }
 
     function handleOpenModal(task?: Task) {
-        if (!selectedOrgId) {
-            setError("Please select an organization first");
-            return;
-        }
-
         if (task) {
             setEditingTask(task);
             setFormData({
@@ -80,8 +69,6 @@ export default function DemoTasks() {
         e.preventDefault();
         setError(null);
 
-        if (!selectedOrgId) return;
-
         try {
             let detailsJson;
             try {
@@ -96,7 +83,6 @@ export default function DemoTasks() {
 
             if (editingTask) {
                 await updateTask(editingTask.id, {
-                    org_id: selectedOrgId,
                     inspection_id: inspectionId,
                     assigned_to: assignedTo,
                     status: formData.status,
@@ -105,7 +91,6 @@ export default function DemoTasks() {
                 });
             } else {
                 await createTask({
-                    org_id: selectedOrgId,
                     inspection_id: inspectionId,
                     assigned_to: assignedTo,
                     status: formData.status,
@@ -115,7 +100,7 @@ export default function DemoTasks() {
             }
 
             setIsModalOpen(false);
-            loadTasks(selectedOrgId);
+            loadTasks();
         } catch (err) {
             console.error("Failed to save task:", err);
             setError("Failed to save task");
@@ -127,7 +112,7 @@ export default function DemoTasks() {
 
         try {
             await deleteTask(id);
-            if (selectedOrgId) loadTasks(selectedOrgId);
+            loadTasks();
         } catch (err) {
             console.error("Failed to delete task:", err);
             setError("Failed to delete task");
@@ -155,14 +140,13 @@ export default function DemoTasks() {
                         Tasks
                     </h1>
                     <p className="mt-2 text-sm text-gray-400">
-                        Demo tasks (demo organization selected by default).
+                        Demo tasks.
                     </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-x-4">
                     <button
                         onClick={() => handleOpenModal()}
-                        disabled={!selectedOrgId}
-                        className={`flex items-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${!selectedOrgId ? "bg-gray-700 cursor-not-allowed text-gray-400" : "bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-indigo-600"}`}
+                        className="flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
                         New Task
                     </button>
@@ -181,15 +165,11 @@ export default function DemoTasks() {
             )}
 
             <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
-                {!selectedOrgId ? (
-                    <div className="p-6 text-center text-gray-400">
-                        <p>Select an organization to view tasks.</p>
-                    </div>
-                ) : isLoading ? (
+                {isLoading ? (
                     <div className="p-6 text-center text-gray-400">Loading...</div>
                 ) : tasks.length === 0 ? (
                     <div className="p-6 text-center text-gray-400">
-                        <p>No tasks found for this organization.</p>
+                        <p>No tasks found. Create one to get started.</p>
                     </div>
                 ) : (
                     <table className="min-w-full divide-y divide-gray-800">
@@ -315,7 +295,6 @@ export default function DemoTasks() {
                                             </label>
                                             <div className="mt-2">
                                                 <UserSelect
-                                                    orgId={selectedOrgId}
                                                     value={formData.assigned_to}
                                                     onChange={(assigned_to) => setFormData({ ...formData, assigned_to })}
                                                     id="assigned_to"
@@ -332,7 +311,6 @@ export default function DemoTasks() {
                                                 id="inspection_id"
                                                 value={formData.inspection_id}
                                                 onChange={(value) => setFormData({ ...formData, inspection_id: value })}
-                                                orgId={selectedOrgId || undefined}
                                                 placeholder="-- Optional --"
                                             />
                                         </div>

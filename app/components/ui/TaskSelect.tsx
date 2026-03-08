@@ -5,7 +5,7 @@ import type { Task } from "~/types/api";
 export interface TaskSelectProps {
     value: string;
     onChange: (value: string) => void;
-    orgId: string;
+    orgId?: string;
     placeholder?: string;
     id?: string;
     className?: string;
@@ -31,16 +31,11 @@ export function TaskSelect({
     const [loadError, setLoadError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!orgId) {
-            setTasks([]);
-            setIsLoading(false);
-            return;
-        }
         let cancelled = false;
         (async () => {
             setIsLoading(true);
             try {
-                const data = await getTasks(orgId);
+                const data = await getTasks();
                 if (!cancelled) {
                     setTasks(data || []);
                     setLoadError(null);
@@ -58,11 +53,8 @@ export function TaskSelect({
         return () => {
             cancelled = true;
         };
-    }, [orgId]);
+    }, []);
 
-    if (!orgId) {
-        return <p className="text-sm text-gray-400">Select an organization first.</p>;
-    }
     if (isLoading) {
         return <p className="text-sm text-gray-400">Loading tasks...</p>;
     }

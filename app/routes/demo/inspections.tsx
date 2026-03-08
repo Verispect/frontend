@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { UserSelect } from "~/components/ui/UserSelect";
 import { createInspection, deleteInspection, getInspections, updateInspection } from "~/lib/api";
 import type { Inspection, InspectionStatus } from "~/types/api";
-import { DEMO_ORG_ID } from "~/lib/demo-context";
 
 export function meta({}: Route.MetaArgs) {
     return [{ title: "Demo - Inspections - Verispect" }];
@@ -17,7 +16,6 @@ export default function DemoInspections() {
     const [error, setError] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
-        org_id: DEMO_ORG_ID,
         inspector_id: "",
         status: "IN_PROGRESS" as InspectionStatus,
         type: "",
@@ -45,7 +43,6 @@ export default function DemoInspections() {
         if (inspection) {
             setEditingInspection(inspection);
             setFormData({
-                org_id: DEMO_ORG_ID,
                 inspector_id: inspection.inspector_id || "",
                 status: inspection.status,
                 type: inspection.type,
@@ -54,7 +51,6 @@ export default function DemoInspections() {
         } else {
             setEditingInspection(null);
             setFormData({
-                org_id: DEMO_ORG_ID,
                 inspector_id: "",
                 status: "IN_PROGRESS",
                 type: "",
@@ -82,7 +78,6 @@ export default function DemoInspections() {
 
             if (editingInspection) {
                 await updateInspection(editingInspection.id, {
-                    org_id: formData.org_id,
                     inspector_id: inspectorId,
                     status: formData.status,
                     type: formData.type,
@@ -90,7 +85,6 @@ export default function DemoInspections() {
                 });
             } else {
                 await createInspection({
-                    org_id: formData.org_id,
                     inspector_id: inspectorId,
                     status: formData.status,
                     type: formData.type,
@@ -163,36 +157,31 @@ export default function DemoInspections() {
             <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
                 {isLoading ? (
                     <div className="p-6 text-center text-gray-400">Loading...</div>
-                ) : (() => {
-                    const filteredInspections = inspections.filter((i) => i.org_id === DEMO_ORG_ID);
-                    return filteredInspections.length === 0 ? (
-                        <div className="p-6 text-center text-gray-400">
-                            <p>No inspections found. Create one to get started.</p>
-                        </div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-800">
-                                <thead className="bg-gray-800/50">
-                                    <tr>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                            Type
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                            Status
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                            Org ID
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                            Date
-                                        </th>
-                                        <th scope="col" className="relative px-6 py-3">
-                                            <span className="sr-only">Actions</span>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-800 bg-gray-900">
-                                    {filteredInspections.map((inspection) => (
+                ) : inspections.length === 0 ? (
+                    <div className="p-6 text-center text-gray-400">
+                        <p>No inspections found. Create one to get started.</p>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-800">
+                            <thead className="bg-gray-800/50">
+                                <tr>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                        Type
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                        Date
+                                    </th>
+                                    <th scope="col" className="relative px-6 py-3">
+                                        <span className="sr-only">Actions</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-800 bg-gray-900">
+                                {inspections.map((inspection) => (
                                         <tr key={inspection.id}>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                                                 {inspection.type}
@@ -201,9 +190,6 @@ export default function DemoInspections() {
                                                 <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${getStatusColor(inspection.status)}`}>
                                                     {inspection.status.replace("_", " ")}
                                                 </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono">
-                                                {inspection.org_id.substring(0, 8)}...
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                                                 {new Date(inspection.created_at).toLocaleDateString()}
@@ -227,8 +213,7 @@ export default function DemoInspections() {
                                 </tbody>
                             </table>
                         </div>
-                    );
-                })()}
+                )}
             </div>
 
             {isModalOpen && (
@@ -299,7 +284,6 @@ export default function DemoInspections() {
                                             </label>
                                             <div className="mt-2">
                                                 <UserSelect
-                                                    orgId={formData.org_id}
                                                     role="inspector"
                                                     value={formData.inspector_id}
                                                     onChange={(inspector_id) => setFormData({ ...formData, inspector_id })}

@@ -37,9 +37,9 @@ export const deleteOrganization = (id: string) =>
 
 // --- Users ---
 
-export const getUsers = (org_id?: string, role?: UserRole) =>
+export const getUsers = (role?: UserRole) =>
     client<User[]>('/v1/users', {
-        params: { ...(org_id && { org_id }), ...(role && { role }) } as Record<string, string>,
+        params: { ...(role && { role }) } as Record<string, string>,
     }).then((users) =>
         role && users
             ? users.filter((u) => u.role === role)
@@ -49,7 +49,7 @@ export const getUsers = (org_id?: string, role?: UserRole) =>
 export const getUser = (id: string) =>
     client<User>(`/v1/users/${id}`);
 
-export const createUser = (data: Omit<User, 'id' | 'created_at' | 'updated_at'> & { password?: string }) =>
+export const createUser = (data: Omit<User, 'id' | 'created_at' | 'updated_at' | 'org_id'> & { password?: string }) =>
     client<User>('/v1/users', {
         method: 'POST',
         body: JSON.stringify(data),
@@ -71,13 +71,13 @@ export const signUpUser = (body?: { role?: UserRole }) =>
 
 // --- Inspections ---
 
-export const getInspections = (org_id?: string) =>
-    client<Inspection[]>('/v1/inspections', { params: org_id ? { org_id } : undefined });
+export const getInspections = () =>
+    client<Inspection[]>('/v1/inspections');
 
 export const getInspection = (id: string) =>
     client<Inspection>(`/v1/inspections/${id}`);
 
-export const createInspection = (data: Omit<Inspection, 'id' | 'created_at' | 'updated_at'>) =>
+export const createInspection = (data: Omit<Inspection, 'id' | 'created_at' | 'updated_at' | 'org_id'>) =>
     client<Inspection>('/v1/inspections', {
         method: 'POST',
         body: JSON.stringify(data),
@@ -148,13 +148,13 @@ export const deleteReport = (id: string) =>
 
 // --- Tasks ---
 
-export const getTasks = (org_id: string) =>
-    client<Task[]>('/v1/tasks', { params: { org_id } });
+export const getTasks = () =>
+    client<Task[]>('/v1/tasks');
 
 export const getTask = (id: string) =>
     client<Task>(`/v1/tasks/${id}`);
 
-export const createTask = (data: Omit<Task, 'id' | 'created_at' | 'updated_at'>) =>
+export const createTask = (data: Omit<Task, 'id' | 'created_at' | 'updated_at' | 'org_id'>) =>
     client<Task>('/v1/tasks', {
         method: 'POST',
         body: JSON.stringify(data),

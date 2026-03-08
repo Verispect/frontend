@@ -37,7 +37,7 @@ export function InspectionSelect({
         let cancelled = false;
         (async () => {
             try {
-                const data = await getInspections(orgId);
+                const data = await getInspections();
                 if (!cancelled) {
                     setInspections(data || []);
                     setLoadError(null);
@@ -55,7 +55,7 @@ export function InspectionSelect({
         return () => {
             cancelled = true;
         };
-    }, [orgId]);
+    }, []);
 
     if (isLoading) {
         return <p className="text-sm text-gray-400">Loading inspections...</p>;

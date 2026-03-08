@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { InspectionSelect } from "~/components/ui/InspectionSelect";
 import { createReport, createReportFormData, deleteReport, getReports, updateReport } from "~/lib/api";
 import type { Report, ReportStatus } from "~/types/api";
-import { DEMO_ORG_ID } from "~/lib/demo-context";
 
 export function meta({}: Route.MetaArgs) {
     return [{ title: "Demo - Reports - Verispect" }];
@@ -154,7 +153,6 @@ export default function DemoReports() {
                     <InspectionSelect
                         value={selectedInspectionId}
                         onChange={setSelectedInspectionId}
-                        orgId={DEMO_ORG_ID}
                     />
                 </div>
             </div>

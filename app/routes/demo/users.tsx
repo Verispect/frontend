@@ -2,7 +2,6 @@ import type { Route } from "./+types/users";
 import { useEffect, useState } from "react";
 import { createUser, getUsers, updateUser } from "~/lib/api";
 import type { User, UserRole } from "~/types/api";
-import { DEMO_ORG_ID } from "~/lib/demo-context";
 
 export function meta({}: Route.MetaArgs) {
     return [{ title: "Demo - Users - Verispect" }];
@@ -14,11 +13,9 @@ export default function DemoUsers() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [orgFilter, setOrgFilter] = useState<string>("");
 
     const [formData, setFormData] = useState({
         email: "",
-        org_id: "",
         role: "inspector" as UserRole,
         password: "",
     });
@@ -45,7 +42,6 @@ export default function DemoUsers() {
             setEditingUser(user);
             setFormData({
                 email: user.email,
-                org_id: DEMO_ORG_ID,
                 role: user.role,
                 password: "",
             });
@@ -53,7 +49,6 @@ export default function DemoUsers() {
             setEditingUser(null);
             setFormData({
                 email: "",
-                org_id: DEMO_ORG_ID,
                 role: "inspector",
                 password: "",
             });
@@ -70,7 +65,6 @@ export default function DemoUsers() {
             if (editingUser) {
                 await updateUser(editingUser.id, {
                     email: formData.email,
-                    org_id: formData.org_id,
                     role: formData.role,
                 });
             } else {
@@ -80,7 +74,6 @@ export default function DemoUsers() {
                 }
                 await createUser({
                     email: formData.email,
-                    org_id: formData.org_id,
                     role: formData.role,
                     password: formData.password,
                 });
@@ -128,32 +121,27 @@ export default function DemoUsers() {
             <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
                 {isLoading ? (
                     <div className="p-6 text-center text-gray-400">Loading...</div>
-                ) : (() => {
-                    const filteredUsers = users.filter((u) => u.org_id === DEMO_ORG_ID);
-                    return filteredUsers.length === 0 ? (
-                        <div className="p-6 text-center text-gray-400">
-                            <p>No users found. Create one to get started.</p>
-                        </div>
-                    ) : (
-                        <table className="min-w-full divide-y divide-gray-800">
-                            <thead className="bg-gray-800/50">
-                                <tr>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                        Email
-                                    </th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                        Role
-                                    </th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                        Org ID
-                                    </th>
-                                    <th scope="col" className="relative px-6 py-3">
-                                        <span className="sr-only">Actions</span>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-800 bg-gray-900">
-                                {filteredUsers.map((user) => (
+                ) : users.length === 0 ? (
+                    <div className="p-6 text-center text-gray-400">
+                        <p>No users found. Create one to get started.</p>
+                    </div>
+                ) : (
+                    <table className="min-w-full divide-y divide-gray-800">
+                        <thead className="bg-gray-800/50">
+                            <tr>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Email
+                                </th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Role
+                                </th>
+                                <th scope="col" className="relative px-6 py-3">
+                                    <span className="sr-only">Actions</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-800 bg-gray-900">
+                            {users.map((user) => (
                                     <tr key={user.id}>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                                             {user.email}
@@ -162,9 +150,6 @@ export default function DemoUsers() {
                                             <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${user.role === "admin" ? "bg-purple-400/10 text-purple-400 ring-purple-400/30" : user.role === "manager" ? "bg-blue-400/10 text-blue-400 ring-blue-400/30" : "bg-green-400/10 text-green-400 ring-green-400/30"}`}>
                                                 {user.role}
                                             </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono">
-                                            {user.org_id}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <button
@@ -178,8 +163,7 @@ export default function DemoUsers() {
                                 ))}
                             </tbody>
                         </table>
-                    );
-                })()}
+                )}
             </div>
 
             {isModalOpen && (

@@ -1,7 +1,6 @@
 import type { Route } from "./+types/inspections";
 import { useEffect, useState } from "react";
 import { UserSelect } from "~/components/ui/UserSelect";
-import { OrganizationSelect } from "~/components/ui/OrganizationSelect";
 import { createInspection, deleteInspection, getInspections, updateInspection } from "~/lib/api";
 import type { Inspection, InspectionStatus } from "~/types/api";
 
@@ -15,11 +14,9 @@ export default function Inspections() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingInspection, setEditingInspection] = useState<Inspection | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [orgFilter, setOrgFilter] = useState<string>("");
 
     // Form state
     const [formData, setFormData] = useState({
-        org_id: "",
         inspector_id: "",
         status: "IN_PROGRESS" as InspectionStatus,
         type: "",
@@ -47,7 +44,6 @@ export default function Inspections() {
         if (inspection) {
             setEditingInspection(inspection);
             setFormData({
-                org_id: inspection.org_id,
                 inspector_id: inspection.inspector_id || "",
                 status: inspection.status,
                 type: inspection.type,
@@ -56,7 +52,6 @@ export default function Inspections() {
         } else {
             setEditingInspection(null);
             setFormData({
-                org_id: "",
                 inspector_id: "",
                 status: "IN_PROGRESS",
                 type: "",
@@ -87,7 +82,6 @@ export default function Inspections() {
 
             if (editingInspection) {
                 await updateInspection(editingInspection.id, {
-                    org_id: formData.org_id,
                     inspector_id: inspectorId,
                     status: formData.status,
                     type: formData.type,
@@ -95,7 +89,6 @@ export default function Inspections() {
                 });
             } else {
                 await createInspection({
-                    org_id: formData.org_id,
                     inspector_id: inspectorId,
                     status: formData.status,
                     type: formData.type,
@@ -143,12 +136,6 @@ export default function Inspections() {
                     </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-x-4">
-                    <div className="w-56">
-                        <OrganizationSelect
-                            value={orgFilter}
-                            onChange={setOrgFilter}
-                        />
-                    </div>
                     <button
                         onClick={() => handleOpenModal()}
                         className="flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -171,13 +158,11 @@ export default function Inspections() {
             <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
                 {isLoading ? (
                     <div className="p-6 text-center text-gray-400">Loading...</div>
-                ) : (() => {
-                    const filteredInspections = orgFilter ? inspections.filter((i) => i.org_id === orgFilter) : inspections;
-                    return filteredInspections.length === 0 ? (
-                        <div className="p-6 text-center text-gray-400">
-                            <p>{orgFilter ? "No inspections in this organization." : "No inspections found. Create one to get started."}</p>
-                        </div>
-                    ) : (
+                ) : inspections.length === 0 ? (
+                    <div className="p-6 text-center text-gray-400">
+                        <p>No inspections found. Create one to get started.</p>
+                    </div>
+                ) : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-800">
                             <thead className="bg-gray-800/50">
@@ -189,9 +174,6 @@ export default function Inspections() {
                                         Status
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                        Org ID
-                                    </th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                                         Date
                                     </th>
                                     <th scope="col" className="relative px-6 py-3">
@@ -200,7 +182,7 @@ export default function Inspections() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-800 bg-gray-900">
-                                {filteredInspections.map((inspection) => (
+                                {inspections.map((inspection) => (
                                     <tr key={inspection.id}>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                                             {inspection.type}
@@ -209,9 +191,6 @@ export default function Inspections() {
                                             <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${getStatusColor(inspection.status)}`}>
                                                 {inspection.status.replace('_', ' ')}
                                             </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono">
-                                            {inspection.org_id.substring(0, 8)}...
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                                             {new Date(inspection.created_at).toLocaleDateString()}
@@ -232,11 +211,10 @@ export default function Inspections() {
                                         </td>
                                     </tr>
                                 ))}
-                            </tbody>
+                                            </tbody>
                         </table>
                     </div>
-                    );
-                })()}
+                )}
             </div>
 
             {/* Modal */}
@@ -303,25 +281,11 @@ export default function Inspections() {
                                         </div>
 
                                         <div>
-                                            <label htmlFor="org_id" className="block text-sm font-medium leading-6 text-gray-300">
-                                                Organization
-                                            </label>
-                                            <div className="mt-2">
-                                                <OrganizationSelect
-                                                    value={formData.org_id}
-                                                    onChange={(org_id) => setFormData({ ...formData, org_id })}
-                                                    required
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div>
                                             <label htmlFor="inspector_id" className="block text-sm font-medium leading-6 text-gray-300">
                                                 Inspector (Optional)
                                             </label>
                                             <div className="mt-2">
                                                 <UserSelect
-                                                    orgId={formData.org_id}
                                                     role="inspector"
                                                     value={formData.inspector_id}
                                                     onChange={(inspector_id) => setFormData({ ...formData, inspector_id })}

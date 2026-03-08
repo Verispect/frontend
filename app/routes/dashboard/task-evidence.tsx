@@ -1,6 +1,5 @@
 import type { Route } from "./+types/task-evidence";
 import { useEffect, useState } from "react";
-import { OrganizationSelect } from "~/components/ui/OrganizationSelect";
 import { TaskSelect } from "~/components/ui/TaskSelect";
 import {
     getTaskEvidence,
@@ -15,7 +14,6 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function TaskEvidencePage() {
-    const [selectedOrgId, setSelectedOrgId] = useState<string>("");
     const [selectedTaskId, setSelectedTaskId] = useState<string>("");
     const [items, setItems] = useState<TaskEvidence[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -23,10 +21,6 @@ export default function TaskEvidencePage() {
     const [error, setError] = useState<string | null>(null);
     const [formType, setFormType] = useState<TaskEvidenceType>("BEFORE");
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
-    useEffect(() => {
-        if (!selectedOrgId) setSelectedTaskId("");
-    }, [selectedOrgId]);
 
     useEffect(() => {
         if (selectedTaskId) {
@@ -121,29 +115,15 @@ export default function TaskEvidencePage() {
                 </button>
             </div>
 
-            <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700 space-y-4">
-                <div>
-                    <label htmlFor="org-select" className="block text-sm font-medium leading-6 text-gray-300">
-                        Organization
-                    </label>
-                    <div className="mt-2 max-w-md">
-                        <OrganizationSelect
-                            value={selectedOrgId}
-                            onChange={setSelectedOrgId}
-                        />
-                    </div>
-                </div>
-                <div>
-                    <label htmlFor="task-select" className="block text-sm font-medium leading-6 text-gray-300">
-                        Task
-                    </label>
-                    <div className="mt-2 max-w-md">
-                        <TaskSelect
-                            orgId={selectedOrgId}
-                            value={selectedTaskId}
-                            onChange={setSelectedTaskId}
-                        />
-                    </div>
+            <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                <label htmlFor="task-select" className="block text-sm font-medium leading-6 text-gray-300">
+                    Task
+                </label>
+                <div className="mt-2 max-w-md">
+                    <TaskSelect
+                        value={selectedTaskId}
+                        onChange={setSelectedTaskId}
+                    />
                 </div>
             </div>
 
@@ -156,7 +136,7 @@ export default function TaskEvidencePage() {
             <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
                 {!selectedTaskId ? (
                     <div className="p-6 text-center text-gray-400">
-                        Select an organization and task to view task evidence.
+                        Select a task to view task evidence.
                     </div>
                 ) : isLoading ? (
                     <div className="p-6 text-center text-gray-400">Loading...</div>

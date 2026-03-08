@@ -1,6 +1,5 @@
 import type { Route } from "./+types/users";
 import { useEffect, useState } from "react";
-import { OrganizationSelect } from "~/components/ui/OrganizationSelect";
 import { createUser, getUsers, updateUser } from "~/lib/api";
 import type { User, UserRole } from "~/types/api";
 
@@ -14,12 +13,10 @@ export default function Users() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [orgFilter, setOrgFilter] = useState<string>("");
 
     // Form state
     const [formData, setFormData] = useState({
         email: "",
-        org_id: "",
         role: "inspector" as UserRole,
         password: "",
     });
@@ -46,7 +43,6 @@ export default function Users() {
             setEditingUser(user);
             setFormData({
                 email: user.email,
-                org_id: user.org_id,
                 role: user.role,
                 password: "", // Don't show existing password
             });
@@ -54,7 +50,6 @@ export default function Users() {
             setEditingUser(null);
             setFormData({
                 email: "",
-                org_id: "",
                 role: "inspector",
                 password: "",
             });
@@ -69,10 +64,8 @@ export default function Users() {
 
         try {
             if (editingUser) {
-                // Remove password if empty (or handle separately if API supports it, here we assume update doesn't change password easily or ignores it if not provided in specific endpoint, but client helper takes Partial<User>. Let's strict to Partial<User> which doesn't have password. The type in api.ts for User doesn't have password. The createUser helper has & { password?: string }. So we can't update password here easily unless we change the API helper or type. I'll skip password update for now.)
                 await updateUser(editingUser.id, {
                     email: formData.email,
-                    org_id: formData.org_id,
                     role: formData.role,
                 });
             } else {
@@ -82,7 +75,6 @@ export default function Users() {
                 }
                 await createUser({
                     email: formData.email,
-                    org_id: formData.org_id,
                     role: formData.role,
                     password: formData.password,
                 });
@@ -108,12 +100,6 @@ export default function Users() {
                     </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-x-4">
-                    <div className="w-56">
-                        <OrganizationSelect
-                            value={orgFilter}
-                            onChange={setOrgFilter}
-                        />
-                    </div>
                     <button
                         onClick={() => handleOpenModal()}
                         className="flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -136,13 +122,11 @@ export default function Users() {
             <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
                 {isLoading ? (
                     <div className="p-6 text-center text-gray-400">Loading...</div>
-                ) : (() => {
-                    const filteredUsers = orgFilter ? users.filter((u) => u.org_id === orgFilter) : users;
-                    return filteredUsers.length === 0 ? (
-                        <div className="p-6 text-center text-gray-400">
-                            <p>{orgFilter ? "No users in this organization." : "No users found. Create one to get started."}</p>
-                        </div>
-                    ) : (
+                ) : users.length === 0 ? (
+                    <div className="p-6 text-center text-gray-400">
+                        <p>No users found. Create one to get started.</p>
+                    </div>
+                ) : (
                     <table className="min-w-full divide-y divide-gray-800">
                         <thead className="bg-gray-800/50">
                             <tr>
@@ -152,16 +136,13 @@ export default function Users() {
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                                     Role
                                 </th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                    Org ID
-                                </th>
                                 <th scope="col" className="relative px-6 py-3">
                                     <span className="sr-only">Actions</span>
                                 </th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-800 bg-gray-900">
-                            {filteredUsers.map((user) => (
+                            {users.map((user) => (
                                 <tr key={user.id}>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                                         {user.email}
@@ -173,9 +154,6 @@ export default function Users() {
                                             }`}>
                                             {user.role}
                                         </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono">
-                                        {user.org_id}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <button
@@ -189,8 +167,7 @@ export default function Users() {
                             ))}
                         </tbody>
                     </table>
-                    );
-                })()}
+                )}
             </div>
 
             {/* Modal */}
@@ -232,19 +209,6 @@ export default function Users() {
                                                     value={formData.email}
                                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                                     className="block w-full rounded-md border-0 bg-gray-800 py-1.5 text-white shadow-sm ring-1 ring-inset ring-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label htmlFor="org_id" className="block text-sm font-medium leading-6 text-gray-300">
-                                                Organization
-                                            </label>
-                                            <div className="mt-2">
-                                                <OrganizationSelect
-                                                    value={formData.org_id}
-                                                    onChange={(org_id) => setFormData({ ...formData, org_id })}
-                                                    required
                                                 />
                                             </div>
                                         </div>

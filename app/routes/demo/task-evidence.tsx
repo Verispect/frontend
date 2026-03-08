@@ -8,7 +8,6 @@ import {
     deleteTaskEvidence,
 } from "~/lib/api";
 import type { TaskEvidence, TaskEvidenceType } from "~/types/api";
-import { DEMO_ORG_ID } from "~/lib/demo-context";
 
 export function meta({}: Route.MetaArgs) {
     return [{ title: "Demo - Task Evidence - Verispect" }];
@@ -122,7 +121,6 @@ export default function DemoTaskEvidencePage() {
                 </label>
                 <div className="mt-2 max-w-md">
                     <TaskSelect
-                        orgId={DEMO_ORG_ID}
                         value={selectedTaskId}
                         onChange={setSelectedTaskId}
                     />
