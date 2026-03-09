@@ -56,7 +56,7 @@ export function Welcome() {
               to="/try-demo"
               className="text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
             >
-              Try Demo
+              Book Demo
             </Link>
             <a
               href="#waitlist"
@@ -93,7 +93,7 @@ export function Welcome() {
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:shadow-xl sm:w-auto"
               style={{ background: gradientBar }}
             >
-              Try demo
+              Book demo
               <svg
                 className="h-5 w-5"
                 fill="none"
@@ -136,7 +136,7 @@ export function Welcome() {
               },
               {
                 title: "Try before you sign up",
-                desc: "Try as Manager, Inspector, or Cleaner with demo data. No credit card, no commitment.",
+                desc: "Book a demo to see Verispect in action. No credit card, no commitment.",
               },
             ].map((item) => (
               <div
@@ -210,15 +210,14 @@ export function Welcome() {
             See it in action
           </h2>
           <p className="mt-3 text-gray-600 dark:text-gray-400">
-            Try Verispect as Manager, Inspector, or Cleaner with sample data. No
-            login required.
+            Book a demo to see Verispect in action with your team.
           </p>
           <Link
             to="/try-demo"
             className="mt-6 inline-flex items-center gap-2 rounded-xl px-6 py-3.5 font-semibold text-white transition-opacity hover:opacity-95"
             style={{ background: gradientBar }}
           >
-            Try demo
+            Book demo
             <svg
               className="h-5 w-5"
               fill="none"
@@ -243,7 +242,7 @@ export function Welcome() {
             to="/try-demo"
             className="hover:text-gray-700 dark:hover:text-gray-300"
           >
-            Try demo
+            Book demo
           </Link>
         </div>
       </footer>

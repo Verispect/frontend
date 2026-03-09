@@ -143,7 +143,7 @@ export default function DemoLayout() {
                             to="/try-demo"
                             className="text-xs font-medium text-gray-400 hover:text-white transition-colors"
                         >
-                            Back to demo
+                            Book demo
                         </Link>
                     </div>
                 </header>

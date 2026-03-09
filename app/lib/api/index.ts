@@ -204,3 +204,11 @@ export const joinWaitingList = (email: string) =>
         method: 'POST',
         body: JSON.stringify({ email }),
     });
+
+// --- Book demo ---
+
+export const bookDemo = (email: string) =>
+    client<void>('/v1/book_demo', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+    });
