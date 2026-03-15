@@ -42,6 +42,9 @@ export default function ImageAnalysisPage() {
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [result, setResult] = useState<ImageAnalysisResponse | null>(null);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [modalZoom, setModalZoom] = useState(1);
+  const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 });
 
   useEffect(() => {
     if (!selectedFile) {
@@ -52,6 +55,27 @@ export default function ImageAnalysisPage() {
     setPreviewUrl(nextUrl);
     return () => URL.revokeObjectURL(nextUrl);
   }, [selectedFile]);
+
+  useEffect(() => {
+    setIsPreviewModalOpen(false);
+    setModalZoom(1);
+    setZoomOrigin({ x: 50, y: 50 });
+  }, [previewUrl]);
+
+  useEffect(() => {
+    if (!isPreviewModalOpen) {
+      return;
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsPreviewModalOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [isPreviewModalOpen]);
 
   const isSubmitting = submitState === "uploading";
 
@@ -95,6 +119,22 @@ export default function ImageAnalysisPage() {
         setErrorMessage("Could not analyze this image right now. Please try again.");
       }
     }
+  }
+
+  function handleModalMouseMove(event: React.MouseEvent<HTMLDivElement>) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    setZoomOrigin({
+      x: Math.min(100, Math.max(0, x)),
+      y: Math.min(100, Math.max(0, y)),
+    });
+  }
+
+  function handleModalWheel(event: React.WheelEvent<HTMLDivElement>) {
+    event.preventDefault();
+    const delta = event.deltaY > 0 ? -0.2 : 0.2;
+    setModalZoom((value) => Math.min(4, Math.max(1, Number((value + delta).toFixed(2)))));
   }
 
   return (
@@ -215,12 +255,29 @@ export default function ImageAnalysisPage() {
             </div>
 
             {previewUrl && (
-              <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-                <img
-                  src={previewUrl}
-                  alt="Selected upload preview"
-                  className="h-64 w-full object-cover"
-                />
+              <div className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                    Preview (full image)
+                  </p>
+                  <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                    Click to zoom
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsPreviewModalOpen(true)}
+                  className="block w-full rounded-xl border border-gray-200 bg-gray-50 transition hover:border-gray-300 dark:border-gray-700 dark:bg-gray-950 dark:hover:border-gray-600"
+                >
+                  <img
+                    src={previewUrl}
+                    alt="Selected upload preview"
+                    className="h-64 w-full rounded-xl object-contain"
+                  />
+                </button>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Open preview and use your cursor to inspect details. Scroll to zoom.
+                </p>
               </div>
             )}
 
@@ -304,6 +361,50 @@ export default function ImageAnalysisPage() {
           )}
         </div>
       </section>
+
+      {isPreviewModalOpen && previewUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Image zoom preview"
+          onClick={() => setIsPreviewModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-5xl rounded-2xl border border-gray-700 bg-gray-900 p-3"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-sm font-medium text-gray-200">
+                Move cursor to focus zoom · Scroll to zoom ({Math.round(modalZoom * 100)}%)
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsPreviewModalOpen(false)}
+                className="rounded-lg border border-gray-600 px-3 py-1 text-sm font-medium text-gray-200 transition hover:border-gray-500"
+              >
+                Close
+              </button>
+            </div>
+            <div
+              className="max-h-[75vh] overflow-hidden rounded-xl bg-black"
+              onMouseMove={handleModalMouseMove}
+              onWheel={handleModalWheel}
+            >
+              <img
+                src={previewUrl}
+                alt="Selected upload zoom preview"
+                className="h-auto max-h-[75vh] w-full select-none object-contain"
+                style={{
+                  transform: `scale(${modalZoom})`,
+                  transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
+                }}
+                draggable={false}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
