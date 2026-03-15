@@ -4,6 +4,7 @@ export default [
     index("routes/home.tsx"),
     route("login", "routes/login.tsx"),
     route("try-demo", "routes/try-demo.tsx"),
+    route("image-analysis", "routes/image-analysis.tsx"),
 
     layout("routes/dashboard/layout.tsx", [
         route("dashboard", "routes/dashboard/home.tsx"),

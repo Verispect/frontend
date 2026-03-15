@@ -8,6 +8,7 @@ import type {
     Report,
     Task,
     TaskEvidence,
+    ImageAnalysisResponse,
 } from '~/types/api';
 
 // --- Organizations ---
@@ -211,4 +212,12 @@ export const bookDemo = (email: string) =>
     client<void>('/v1/book_demo', {
         method: 'POST',
         body: JSON.stringify({ email }),
+    });
+
+// --- Image analysis ---
+
+export const analyzeImage = (formData: FormData) =>
+    client<ImageAnalysisResponse>('/v1/image-analysis', {
+        method: 'POST',
+        body: formData,
     });

@@ -78,3 +78,27 @@ export interface TaskEvidence {
     s3_key?: string;
     created_at: ISODateString;
 }
+
+export type ImageAnalysisPlace =
+    | "bathroom"
+    | "kitchen"
+    | "bedroom"
+    | "living_room"
+    | "hallway"
+    | "lobby"
+    | "office"
+    | "dining_room"
+    | "laundry_room";
+
+export interface ImageAnalysisTask {
+    description: string;
+    type: string;
+    priority: string;
+    area: string;
+}
+
+export interface ImageAnalysisResponse {
+    email: string;
+    place: ImageAnalysisPlace;
+    tasks: ImageAnalysisTask[];
+}
